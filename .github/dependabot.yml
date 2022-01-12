@@ -3,9 +3,17 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: "daily"
+      time: "18:00"
+      timezone: "America/New_York"
+    labels:
+      - "dependencies 🛠"
 
-  - package-ecosystem: npm
-    directory: /
+  - package-ecosystem: "npm" # See documentation for possible values.
+    directory: "/" # Location of package manifests
     schedule:
-      interval: daily
+      interval: "daily"
+      time: "18:00"
+      timezone: "America/New_York"
+    labels:
+      - "dependencies 🛠"
