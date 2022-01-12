@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Chris Kerins'
+description: 'Creates a draft release with next semver tag'
+author: 'Chris Kerins'
 inputs:
   milliseconds: # change this
     required: true
