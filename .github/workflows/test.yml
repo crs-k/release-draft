@@ -26,4 +26,4 @@ jobs:
           repo: 'repo'
           tag_name: 'refs/tags/v1.0.0'
           release_name: 'myRelease'
-          target_commitish: 'sha'
+          commitish: 'sha'
