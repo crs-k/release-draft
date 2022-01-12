@@ -21,11 +21,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          owner: 'owner',
-          repo: 'repo',
-          tag_name: 'refs/tags/v1.0.0',
-          name: 'myRelease',
-          body: 'myBody',
-          draft: 'false',
-          prerelease: 'false',
+          owner: 'owner'
+          repo: 'repo'
+          tag_name: 'refs/tags/v1.0.0'
+          name: 'myRelease'
+          body: 'myBody'
+          draft: false
+          prerelease: false
           target_commitish: 'sha'
