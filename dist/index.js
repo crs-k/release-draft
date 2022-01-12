@@ -80,7 +80,7 @@ function run() {
                 owner,
                 repo,
                 tag_name: tag,
-                name: releaseName,
+                name: releaseName || tag,
                 body: bodyFileContent || body,
                 draft,
                 prerelease,
@@ -95,7 +95,7 @@ function run() {
         }
         catch (error) {
             if (error instanceof Error)
-                core.setFailed(error.message);
+                core.setFailed(`Action failed with ${error.message}`);
         }
     });
 }
