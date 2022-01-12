@@ -46,9 +46,9 @@ export async function run(): Promise<void> {
       owner,
       repo,
       tag_name: tag,
-      name: releaseName,
+      name: tag,
       body: bodyFileContent || body,
-      draft,
+      draft: true,
       prerelease,
       target_commitish: commitish
     })
