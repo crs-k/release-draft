@@ -60,8 +60,9 @@ describe('Create Release', () => {
       prerelease: false,
       target_commitish: 'sha'
     })
-    console.log(run(), run(), run(), run())
+    console.log(run())
   })
+
   /*
   test('Draft release is created', async () => {
     core.getInput = jest

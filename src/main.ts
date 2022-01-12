@@ -1,3 +1,5 @@
 import {run} from './next-semver'
 
-run
+if (require.main === module) {
+  run()
+}

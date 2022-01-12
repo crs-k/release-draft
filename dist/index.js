@@ -80,7 +80,7 @@ function run() {
                 owner,
                 repo,
                 tag_name: tag,
-                name: releaseName,
+                name: releaseName || tag,
                 body: bodyFileContent || body,
                 draft,
                 prerelease,
@@ -95,12 +95,12 @@ function run() {
         }
         catch (error) {
             if (error instanceof Error)
-                core.setFailed(error.message);
+                core.setFailed(`Action failed with ${error.message}`);
         }
     });
 }
 exports.run = run;
-run();
+//run()
 
 
 /***/ }),
@@ -28121,7 +28121,9 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const next_semver_1 = __nccwpck_require__(1544);
-next_semver_1.run;
+if (require.main === require.cache[eval('__filename')]) {
+    (0, next_semver_1.run)();
+}
 
 })();
 

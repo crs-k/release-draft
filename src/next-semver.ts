@@ -46,7 +46,7 @@ export async function run(): Promise<void> {
       owner,
       repo,
       tag_name: tag,
-      name: releaseName,
+      name: releaseName || tag,
       body: bodyFileContent || body,
       draft,
       prerelease,
@@ -63,8 +63,9 @@ export async function run(): Promise<void> {
     core.setOutput('html_url', htmlUrl)
     core.setOutput('upload_url', uploadUrl)
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error)
+      core.setFailed(`Action failed with ${error.message}`)
   }
 }
 
-run()
+//run()
