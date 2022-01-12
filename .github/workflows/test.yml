@@ -22,4 +22,4 @@ jobs:
       - uses: ./
         with:
           repo-token: ${{ github.token }}
-          tag_name: 'refs/tags/v1.0.0'
+          tag_name: 'refs/tags/v0.0.0'
