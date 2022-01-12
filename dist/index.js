@@ -28121,7 +28121,9 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const next_semver_1 = __nccwpck_require__(1544);
-next_semver_1.run;
+if (require.main === require.cache[eval('__filename')]) {
+    (0, next_semver_1.run)();
+}
 
 })();
 
