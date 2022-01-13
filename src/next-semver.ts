@@ -44,7 +44,7 @@ export async function run(): Promise<void> {
     //Check for tags
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prevTag: any =
-      (await exec.exec('git describe --abbrev=0 --tags')) || 'v.0.0.0'
+      (await exec.exec('git describe --abbrev=0 --tags'))
     const nextTag = semver.inc(prevTag, 'patch')
     core.info(`'Previous tag: ${prevTag}`)
     core.info(`'Next tag: ${nextTag}`)
