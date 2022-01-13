@@ -79,16 +79,16 @@ function run() {
             let execTag = '';
             const options = {
                 listeners: {
-                    stdout: (data) => {
+                    stdout: data => {
                         execTag += data.toString();
                     }
                 }
             };
-            const prevTag = yield exec.exec('git describe --abbrev=0 --tags', [], options);
-            const cleanTag = semver.clean(execTag) || '6.6.6';
+            yield exec.exec('git describe --abbrev=0 --tags', [], options);
+            const cleanTag = semver.clean(execTag) || '0.0.0';
             const nextTag = semver.inc(cleanTag, 'patch');
             core.info(`'Clean tag: ${cleanTag}`);
-            core.info(`'Previous tag: ${prevTag}`);
+            core.info(`'Previous tag: ${execTag}`);
             core.info(`'Next tag: ${nextTag}`);
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release

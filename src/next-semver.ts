@@ -52,15 +52,11 @@ export async function run(): Promise<void> {
       }
     }
 
-    const prevTag = await exec.exec(
-      'git describe --abbrev=0 --tags',
-      [],
-      options
-    )
-    const cleanTag = semver.clean(execTag) || '6.6.6'
+    await exec.exec('git describe --abbrev=0 --tags', [], options)
+    const cleanTag = semver.clean(execTag) || '0.0.0'
     const nextTag = semver.inc(cleanTag, 'patch')
     core.info(`'Clean tag: ${cleanTag}`)
-    core.info(`'Previous tag: ${prevTag}`)
+    core.info(`'Previous tag: ${execTag}`)
     core.info(`'Next tag: ${nextTag}`)
 
     // Create a release
