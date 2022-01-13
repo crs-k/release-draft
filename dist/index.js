@@ -75,7 +75,7 @@ function run() {
                 }
             }
             //Check for tags
-            const prevTag = yield exec.exec('git rev-list --tags --max-count=1');
+            const prevTag = yield exec.exec('git describe --abbrev=0 --tags');
             core.info(`'Previous tag: ${prevTag}`);
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
@@ -104,7 +104,6 @@ function run() {
     });
 }
 exports.run = run;
-//run()
 
 
 /***/ }),
