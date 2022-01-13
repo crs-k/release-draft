@@ -89,7 +89,7 @@ function run() {
                     }
                 }
             };
-            const prevTag = yield exec.getExecOutput('git describe --abbrev=0 --tags', [''], options);
+            const prevTag = String(yield exec.exec('git describe --abbrev=0 --tags', [''], options));
             const cleanTag = semver.clean(execTag) || '6.6.6';
             const nextTag = semver.inc(cleanTag, 'patch');
             core.info(`'Clean tag: ${cleanTag}`);
