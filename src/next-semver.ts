@@ -43,7 +43,7 @@ export async function run(): Promise<void> {
 
     //Check for tags
     const prevTag = String(
-      await exec.getExecOutput('git describe --abbrev=0 --tags')
+      await exec.getExecOutput(`echo 'git describe --abbrev=0 --tags'`)
     )
     const cleanTag = semver.clean(prevTag) || '6.6.6'
     const nextTag = semver.inc(cleanTag, 'patch')
