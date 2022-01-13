@@ -43,7 +43,7 @@ export async function run(): Promise<void> {
 
     //Check for tags
     const prevTag = String(await exec.exec('git describe --abbrev=0 --tags'))
-    const cleanTag = semver.clean(prevTag) || '0.1.0'
+    const cleanTag = semver.clean(prevTag) || '60.1.0'
     const nextTag = semver.inc(cleanTag, 'patch')
     core.info(`'Clean tag: ${cleanTag}`)
     core.info(`'Previous tag: ${prevTag}`)
