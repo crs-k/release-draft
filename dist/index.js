@@ -60,8 +60,7 @@ function run() {
             const body = core.getInput('body', { required: false });
             const draft = core.getInput('draft', { required: false }) === 'true';
             const prerelease = core.getInput('prerelease', { required: false }) === 'true';
-            // const commitish =
-            //   core.getInput('commitish', {required: false}) || context.sha
+            const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
             const bodyPath = core.getInput('body_path', { required: false });
             const owner = core.getInput('owner', { required: false }) || currentOwner;
             const repo = core.getInput('repo', { required: false }) || currentRepo;
@@ -102,7 +101,7 @@ function run() {
                 body: bodyFileContent || body,
                 draft,
                 prerelease,
-                target_commitish: 'main'
+                target_commitish: commitish
             });
             // Get the ID, html_url, and upload URL for the created Release from the response
             const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = createReleaseResponse;
