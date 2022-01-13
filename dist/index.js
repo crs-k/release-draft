@@ -77,8 +77,10 @@ function run() {
             }
             //Check for tags
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const prevTag = (yield exec.exec('git describe --abbrev=0 --tags')) || 'v.0.0.0';
-            const nextTag = semver.inc(prevTag, 'patch');
+            const prevTag = (yield exec.exec('git describe --abbrev=0 --tags'));
+            const cleanTag = semver.clean(prevTag) || '0.0.0';
+            const nextTag = semver.inc(cleanTag, 'patch');
+            core.info(`'Clean tag: ${cleanTag}`);
             core.info(`'Previous tag: ${prevTag}`);
             core.info(`'Next tag: ${nextTag}`);
             // Create a release
