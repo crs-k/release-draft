@@ -41,7 +41,7 @@ export async function run(): Promise<void> {
     }
 
     //Check for tags
-    const prevTag = await exec.exec('git rev-list --tags --max-count=1')
+    const prevTag = await exec.exec('git describe --abbrev=0 --tags')
     core.info(`'Previous tag: ${prevTag}`)
 
     // Create a release
@@ -72,5 +72,3 @@ export async function run(): Promise<void> {
       core.setFailed(`Action failed with ${error.message}`)
   }
 }
-
-//run()
