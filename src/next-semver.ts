@@ -1,5 +1,7 @@
 import * as core from '@actions/core'
+import * as exec from '@actions/exec'
 import * as fs from 'fs'
+import * as semver from 'semver'
 import {GitHub, context} from '@actions/github'
 
 export async function run(): Promise<void> {
@@ -39,14 +41,31 @@ export async function run(): Promise<void> {
       }
     }
 
+    //Check for tags & propose next tag
+    let execTag = ''
+    const options = {
+      listeners: {
+        stdout: data => {
+          execTag += data.toString()
+        }
+      }
+    }
+
+    await exec.exec('git describe --abbrev=0 --tags', [], options)
+    const cleanTag = semver.clean(execTag) || '0.0.0'
+    const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.0.1'
+    core.info(`'Clean tag: ${cleanTag}`)
+    core.info(`'Previous tag: ${execTag}`)
+    core.info(`'Next tag: ${nextTag}`)
+
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
     // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
     const createReleaseResponse = await github.repos.createRelease({
       owner,
       repo,
-      tag_name: tag,
-      name: releaseName || tag,
+      tag_name: nextTag,
+      name: releaseName || nextTag || tag,
       body: bodyFileContent || body,
       draft,
       prerelease,
@@ -67,5 +86,3 @@ export async function run(): Promise<void> {
       core.setFailed(`Action failed with ${error.message}`)
   }
 }
-
-//run()

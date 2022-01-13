@@ -15,9 +15,9 @@ inputs:
     description: 'Path to file with information about the tag.'
     required: false
   draft:
-    description: '`true` to create a draft (unpublished) release, `false` to create a published one. Default: `false`'
+    description: '`true` to create a draft (unpublished) release, `false` to create a published one. Default: `true`'
     required: false
-    default: false
+    default: true
   prerelease:
     description: '`true` to identify the release as a prerelease. `false` to identify the release as a full release. Default: `false`'
     required: false
