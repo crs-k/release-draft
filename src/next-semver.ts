@@ -57,7 +57,7 @@ export async function run(): Promise<void> {
       }
     }
 
-    const prevTag = await exec.exec(
+    const prevTag = await exec.getExecOutput(
       'git describe --abbrev=0 --tags',
       [''],
       options
