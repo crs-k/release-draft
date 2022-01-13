@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as exec from '@actions/exec'
 import * as fs from 'fs'
 import {GitHub, context} from '@actions/github'
 
@@ -38,6 +39,10 @@ export async function run(): Promise<void> {
         if (error instanceof Error) core.setFailed(error.message)
       }
     }
+
+    //Check for tags
+    const prevTag = await exec.exec('git rev-list --tags --max-count=1')
+    core.info(`'Previous tag: ${prevTag}`)
 
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
