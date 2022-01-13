@@ -53,7 +53,7 @@ export async function run(): Promise<void> {
 
     await exec.exec('git describe --abbrev=0 --tags', [], options)
     const cleanTag = semver.clean(execTag) || '0.0.0'
-    const nextTag = semver.inc(cleanTag, 'patch')
+    const nextTag = semver.inc(cleanTag, 'patch') || '0.0.1'
     core.info(`'Clean tag: ${cleanTag}`)
     core.info(`'Previous tag: ${execTag}`)
     core.info(`'Next tag: ${nextTag}`)
@@ -64,7 +64,7 @@ export async function run(): Promise<void> {
     const createReleaseResponse = await github.repos.createRelease({
       owner,
       repo,
-      tag_name: tag,
+      tag_name: nextTag,
       name: releaseName || tag,
       body: bodyFileContent || body,
       draft,
