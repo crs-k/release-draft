@@ -75,7 +75,7 @@ function run() {
                         core.setFailed(error.message);
                 }
             }
-            //Check for tags
+            //Check for tags & propose next tag
             let execTag = '';
             const options = {
                 listeners: {

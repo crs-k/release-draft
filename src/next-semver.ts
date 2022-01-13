@@ -41,9 +41,8 @@ export async function run(): Promise<void> {
       }
     }
 
-    //Check for tags
+    //Check for tags & propose next tag
     let execTag = ''
-
     const options = {
       listeners: {
         stdout: data => {
