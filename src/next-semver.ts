@@ -65,7 +65,7 @@ export async function run(): Promise<void> {
       owner,
       repo,
       tag_name: nextTag,
-      name: releaseName || tag,
+      name: releaseName || nextTag || tag,
       body: bodyFileContent || body,
       draft,
       prerelease,

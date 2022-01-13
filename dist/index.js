@@ -97,7 +97,7 @@ function run() {
                 owner,
                 repo,
                 tag_name: nextTag,
-                name: releaseName || tag,
+                name: releaseName || nextTag || tag,
                 body: bodyFileContent || body,
                 draft,
                 prerelease,
