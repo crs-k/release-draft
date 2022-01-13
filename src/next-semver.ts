@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as fs from 'fs'
+import * as semver from 'semver'
 import {GitHub, context} from '@actions/github'
 
 export async function run(): Promise<void> {
@@ -41,8 +42,12 @@ export async function run(): Promise<void> {
     }
 
     //Check for tags
-    const prevTag = await exec.exec('git describe --abbrev=0 --tags')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prevTag: any =
+      (await exec.exec('git describe --abbrev=0 --tags')) || 'v.0.0.0'
+    const nextTag = semver.inc(prevTag, 'patch')
     core.info(`'Previous tag: ${prevTag}`)
+    core.info(`'Next tag: ${nextTag}`)
 
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
