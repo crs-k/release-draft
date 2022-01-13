@@ -43,23 +43,18 @@ export async function run(): Promise<void> {
 
     //Check for tags
     let execTag = ''
-    let execErr = ''
 
     const options = {
       listeners: {
-        stdout: (data: Buffer) => {
+        stdout: data => {
           execTag += data.toString()
-        },
-        stderr: (data: Buffer) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          execErr += data.toString()
         }
       }
     }
 
     const prevTag = await exec.exec(
-      'git describe --abbrev=0',
-      ['tags'],
+      'git describe --abbrev=0 --tags',
+      [],
       options
     )
     const cleanTag = semver.clean(execTag) || '6.6.6'

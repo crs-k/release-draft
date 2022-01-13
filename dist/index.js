@@ -77,19 +77,14 @@ function run() {
             }
             //Check for tags
             let execTag = '';
-            let execErr = '';
             const options = {
                 listeners: {
                     stdout: (data) => {
                         execTag += data.toString();
-                    },
-                    stderr: (data) => {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        execErr += data.toString();
                     }
                 }
             };
-            const prevTag = yield exec.exec('git describe --abbrev=0', ['tags'], options);
+            const prevTag = yield exec.exec('git describe --abbrev=0 --tags', [], options);
             const cleanTag = semver.clean(execTag) || '6.6.6';
             const nextTag = semver.inc(cleanTag, 'patch');
             core.info(`'Clean tag: ${cleanTag}`);
