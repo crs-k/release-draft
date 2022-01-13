@@ -42,10 +42,27 @@ export async function run(): Promise<void> {
     }
 
     //Check for tags
-    const prevTag = String(
-      await exec.exec(`echo 'git describe --abbrev=0 --tags'`)
+    let execTag = ''
+    let execErr = ''
+
+    const options = {
+      listeners: {
+        stdout: (data: Buffer) => {
+          execTag += data.toString()
+        },
+        stderr: (data: Buffer) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          execErr += data.toString()
+        }
+      }
+    }
+
+    const prevTag = await exec.exec(
+      'git describe --abbrev=0 --tags',
+      [''],
+      options
     )
-    const cleanTag = semver.clean(prevTag) || '6.6.6'
+    const cleanTag = semver.clean(execTag) || '6.6.6'
     const nextTag = semver.inc(cleanTag, 'patch')
     core.info(`'Clean tag: ${cleanTag}`)
     core.info(`'Previous tag: ${prevTag}`)
