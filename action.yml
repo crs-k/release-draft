@@ -23,7 +23,7 @@ inputs:
     required: false
     default: false
   commitish:
-    description: 'Any branch or commit SHA the Git tag is created from, unused if the Git tag already exists. Default: SHA of current commit'
+    description: 'Any branch or commit SHA the Git tag is created from, unused if the Git tag already exists. Default: `main` branch'
     required: false
   owner:
     description: 'Owner of the repository if it is not the current one'
