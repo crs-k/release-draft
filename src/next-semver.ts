@@ -52,7 +52,10 @@ export async function run(): Promise<void> {
     try {
       await exec.exec('git describe --abbrev=0 --tags', [], options)
     } catch (error) {
-      if (error instanceof Error) core.info(error.message)
+      if (error instanceof Error)
+        core.info(
+          `Git failed to find tag with error: ${error.message}. Defaulting tag to v0.1.0`
+        )
     }
     const cleanTag = semver.clean(execTag) || '0.0.0'
     const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
