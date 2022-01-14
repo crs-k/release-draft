@@ -1,19 +1,19 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
+
 import * as fs from 'fs'
 import * as semver from 'semver'
-import * as github from '@actions/github'
-import * as octokit from '@octokit/rest'
+import {context, getOctokit} from '@actions/github'
 
 export async function run(): Promise<void> {
   try {
     // Get authenticated GitHub client (Ocktokit): https://github.com/actions/toolkit/tree/master/packages/github#usage
     const repoToken = core.getInput('repo-token', {required: true})
     core.setSecret(repoToken)
-    const octokit = github.getOctokit(repoToken)
+    const github = getOctokit(repoToken)
 
     // Get owner and repo from context of payload that triggered the action
-    const {owner: currentOwner, repo: currentRepo} = github.context.repo
+    const {owner: currentOwner, repo: currentRepo} = context.repo
 
     // Get the inputs from the workflow file: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
     const tagName = core.getInput('tag_name', {required: true})
@@ -67,7 +67,7 @@ export async function run(): Promise<void> {
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
     // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
-    const createReleaseResponse = await octokit.rest.repos.createRelease({
+    const createReleaseResponse = await github.rest.repos.createRelease({
       owner,
       repo,
       tag_name: nextTag,
