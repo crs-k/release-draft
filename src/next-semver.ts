@@ -41,18 +41,18 @@ export async function run(): Promise<void> {
     }
 
     //Check for tags & propose next tag
-    let execTag = ''
+    let execTag = '0.1.0'
     const options = {
       listeners: {
         stdout: data => {
-          execTag += data.toString()
+          execTag = data.toString()
         }
       }
     }
 
     await exec.exec('git describe --abbrev=0 --tags', [], options)
     const cleanTag = semver.clean(execTag) || '0.0.0'
-    const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.0.1'
+    const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
     core.info(`'Clean tag: ${cleanTag}`)
     core.info(`'Previous tag: ${execTag}`)
     core.info(`'Next tag: ${nextTag}`)
