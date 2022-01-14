@@ -84,7 +84,13 @@ function run() {
                     }
                 }
             };
-            yield exec.exec('git describe --abbrev=0 --tags', [], options);
+            try {
+                yield exec.exec('git describe --abbrev=0 --tags', [], options);
+            }
+            catch (error) {
+                if (error instanceof Error)
+                    core.info(error.message);
+            }
             const cleanTag = semver.clean(execTag) || '0.0.0';
             const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0';
             core.info(`'Clean tag: ${cleanTag}`);
