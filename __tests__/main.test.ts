@@ -1,4 +1,5 @@
 import {describe, expect, test, beforeEach} from '@jest/globals'
+import {Octokit} from '@octokit/rest'
 import {run} from '../src/next-semver'
 
 jest.mock('@actions/core')
@@ -7,7 +8,7 @@ jest.mock('fs')
 jest.mock('../src/main')
 
 const core = require('@actions/core')
-const {GitHub, context} = require('@actions/github')
+const {context, getOctokit} = require('@actions/github')
 const fs = require('fs')
 //const run = require('../src/main')
 
@@ -36,7 +37,7 @@ describe('Create Release', () => {
       }
     }
 
-    GitHub.mockImplementation(() => github)
+    getOctokit.mockImplementation(() => github)
   })
 
   test('2 + 2 = 4', () => {
