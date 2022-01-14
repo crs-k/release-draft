@@ -1,6 +1,5 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
-
 import * as fs from 'fs'
 import * as semver from 'semver'
 import {context, getOctokit} from '@actions/github'
