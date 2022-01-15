@@ -64,7 +64,6 @@ export async function run(): Promise<void> {
     core.info(`'Next tag: ${nextTag}`)
 
     // List releases
-
     const listReleaseResponse = await github.rest.repos.listReleases({
       owner,
       repo,
@@ -77,7 +76,9 @@ export async function run(): Promise<void> {
         data: [{tag_name: prevTag, draft: prevDraft}]
       } = listReleaseResponse || {}
 
-      core.info(`'Prev tag: ${prevTag}, Prev release: ${prevDraft}`)
+      core.info(
+        `'Prev tag: ${prevTag}, Prev release: ${prevDraft}, ${listReleaseResponse.data}`
+      )
     } catch (error) {
       if (error instanceof Error)
         core.setFailed(`Retrieving previous tag failed with: ${error.message}`)

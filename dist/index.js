@@ -105,7 +105,7 @@ function run() {
             });
             try {
                 const { data: [{ tag_name: prevTag, draft: prevDraft }] } = listReleaseResponse || {};
-                core.info(`'Prev tag: ${prevTag}, Prev release: ${prevDraft}`);
+                core.info(`'Prev tag: ${prevTag}, Prev release: ${prevDraft}, ${listReleaseResponse.data}`);
             }
             catch (error) {
                 if (error instanceof Error)
