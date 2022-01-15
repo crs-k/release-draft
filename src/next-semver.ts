@@ -77,17 +77,25 @@ export async function run(): Promise<void> {
     core.info(`Prev Release ID: ${prevReleaseId}`)
 
     // Update Release
+    //Check that a previous Release Draft exists
     if ((prevDraft = true && prevReleaseId !== 0)) {
+      //Generate release notes based on previous release id
       const generateReleaseNotesResponse =
         await github.rest.repos.generateReleaseNotes({
           owner,
           repo,
           tag_name: defaultTag
         })
+      //Assign output for use in release update
       const {
         data: {name: updateName, body: updateBody}
       } = generateReleaseNotesResponse
 
+      core.info(`Targeted: ${defaultTag}`)
+      core.info(`Generated Name: ${updateName}`)
+      core.info(`Generated Body: ${updateBody}`)
+
+      //Update existing draft
       const updateReleaseResponse = await github.rest.repos.updateRelease({
         owner,
         repo,
@@ -99,32 +107,32 @@ export async function run(): Promise<void> {
         data: {id: updateReleaseId}
       } = updateReleaseResponse
       core.setOutput('update_id', updateReleaseId)
+    } else {
+      // Create a release
+      // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
+      // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
+      const createReleaseResponse = await github.rest.repos.createRelease({
+        owner,
+        repo,
+        tag_name: nextTag,
+        name: releaseName || nextTag || tag,
+        body: bodyFileContent || body,
+        draft,
+        prerelease,
+        target_commitish: commitish,
+        generate_release_notes: true
+      })
+
+      // Get the ID, html_url, and upload URL for the created Release from the response
+      const {
+        data: {id: releaseId, html_url: htmlUrl, upload_url: uploadUrl}
+      } = createReleaseResponse
+
+      // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
+      core.setOutput('id', releaseId)
+      core.setOutput('html_url', htmlUrl)
+      core.setOutput('upload_url', uploadUrl)
     }
-
-    // Create a release
-    // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
-    // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
-    const createReleaseResponse = await github.rest.repos.createRelease({
-      owner,
-      repo,
-      tag_name: nextTag,
-      name: releaseName || nextTag || tag,
-      body: bodyFileContent || body,
-      draft,
-      prerelease,
-      target_commitish: commitish,
-      generate_release_notes: true
-    })
-
-    // Get the ID, html_url, and upload URL for the created Release from the response
-    const {
-      data: {id: releaseId, html_url: htmlUrl, upload_url: uploadUrl}
-    } = createReleaseResponse
-
-    // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
-    core.setOutput('id', releaseId)
-    core.setOutput('html_url', htmlUrl)
-    core.setOutput('upload_url', uploadUrl)
   } catch (error) {
     if (error instanceof Error)
       core.setFailed(`Action failed with ${error.message}`)
