@@ -82,7 +82,8 @@ export async function run(): Promise<void> {
       body: bodyFileContent || body,
       draft,
       prerelease,
-      target_commitish: commitish
+      target_commitish: commitish,
+      generate_release_notes: true
     })
 
     // Get the ID, html_url, and upload URL for the created Release from the response
@@ -90,7 +91,7 @@ export async function run(): Promise<void> {
       data: {id: releaseId, html_url: htmlUrl, upload_url: uploadUrl}
     } = createReleaseResponse
 
-    //Create release notes
+    /*     //Create release notes
     try {
       await github.rest.repos.generateReleaseNotes({
         owner,
@@ -100,7 +101,7 @@ export async function run(): Promise<void> {
     } catch (error) {
       if (error instanceof Error)
         core.info(`Failed to generate release notes: ${error.message}.`)
-    }
+    } */
 
     // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
     core.setOutput('id', releaseId)

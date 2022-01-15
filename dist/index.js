@@ -114,22 +114,22 @@ function run() {
                 body: bodyFileContent || body,
                 draft,
                 prerelease,
-                target_commitish: commitish
+                target_commitish: commitish,
+                generate_release_notes: true
             });
             // Get the ID, html_url, and upload URL for the created Release from the response
             const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = createReleaseResponse;
-            //Create release notes
-            try {
-                yield github.rest.repos.generateReleaseNotes({
+            /*     //Create release notes
+                try {
+                  await github.rest.repos.generateReleaseNotes({
                     owner,
                     repo,
                     tag_name: nextTag
-                });
-            }
-            catch (error) {
-                if (error instanceof Error)
-                    core.info(`Failed to generate release notes: ${error.message}.`);
-            }
+                  })
+                } catch (error) {
+                  if (error instanceof Error)
+                    core.info(`Failed to generate release notes: ${error.message}.`)
+                } */
             // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
             core.setOutput('id', releaseId);
             core.setOutput('html_url', htmlUrl);
