@@ -31,14 +31,13 @@ export async function run(): Promise<void> {
         data: [{tag_name: targetTag, draft: prevDraft, id: prevReleaseId}]
       } = listReleaseResponse)
 
-      core.info(
-        `Prev tag: ${targetTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`
-      )
+      core.info(`Previous Tag: ${targetTag}`)
+      core.info(`Previous Release Type: ${prevDraft}`)
+      core.info(`Previous Release ID: ${prevReleaseId}`)
     } catch (error) {
       if (error instanceof Error)
-        core.info(
-          `Failed to find tag with error: ${error.message}. Defaulting tag to ${targetTag}.`
-        )
+        core.info(`Failed to find tag with error: ${error.message}.`)
+      core.info(`Defaulting tag to ${targetTag}.`)
     }
 
     // Update Release
@@ -79,6 +78,7 @@ export async function run(): Promise<void> {
       core.setOutput('update_id', updateReleaseId)
     } else {
       // Create a release
+      //Clean and bump version
       const cleanTag = semver.clean(targetTag) || '0.1.0'
       const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
 
