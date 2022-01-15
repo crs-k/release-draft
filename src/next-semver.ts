@@ -64,6 +64,7 @@ export async function run(): Promise<void> {
     core.info(`'Next tag: ${nextTag}`)
 
     // List releases
+
     const listReleaseResponse = await github.rest.repos.listReleases({
       owner,
       repo,
@@ -74,7 +75,7 @@ export async function run(): Promise<void> {
     try {
       const {
         data: [{tag_name: prevTag}]
-      } = listReleaseResponse
+      } = listReleaseResponse || {}
 
       core.info(prevTag)
     } catch (error) {

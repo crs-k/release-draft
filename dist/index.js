@@ -104,7 +104,7 @@ function run() {
                 page: 1
             });
             try {
-                const { data: [{ tag_name: prevTag }] } = listReleaseResponse;
+                const { data: [{ tag_name: prevTag }] } = listReleaseResponse || {};
                 core.info(prevTag);
             }
             catch (error) {
