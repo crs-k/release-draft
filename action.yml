@@ -2,15 +2,7 @@ name: 'Next Semver Release Draft'
 description: 'Creates a draft release with next semver tag'
 author: 'Chris Kerins'
 inputs:
-  release_name:
-    description: 'The name of the release. For example, `Release v1.0.1`'
-    required: true
-  body:
-    description: 'Text describing the contents of the tag.'
-    required: false
-  body_path:
-    description: 'Path to file with information about the tag.'
-    required: false
+
   draft:
     description: '`true` to create a draft (unpublished) release, `false` to create a published one. Default: `true`'
     required: false
