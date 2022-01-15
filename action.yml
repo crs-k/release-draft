@@ -3,14 +3,6 @@ description: 'Creates a draft release with next semver tag'
 author: 'Chris Kerins'
 inputs:
 
-  draft:
-    description: '`true` to create a draft (unpublished) release, `false` to create a published one. Default: `true`'
-    required: false
-    default: true
-  prerelease:
-    description: '`true` to identify the release as a prerelease. `false` to identify the release as a full release. Default: `false`'
-    required: false
-    default: false
   commitish:
     description: 'Any branch or commit SHA the Git tag is created from, unused if the Git tag already exists. Default: `main` branch'
     required: false

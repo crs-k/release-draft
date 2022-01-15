@@ -59,7 +59,7 @@ function run() {
               .replace('refs/tags/', '') */
             // const body = core.getInput('body', {required: false})
             // const draft = core.getInput('draft', {required: false}) === 'true'
-            const prerelease = core.getInput('prerelease', { required: false }) === 'true';
+            // const prerelease = core.getInput('prerelease', {required: false}) === 'true'
             const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
             // const bodyPath = core.getInput('body_path', {required: false})
             const owner = core.getInput('owner', { required: false }) || currentOwner;
@@ -137,7 +137,6 @@ function run() {
                     repo,
                     tag_name: nextTag,
                     name: nextTag,
-                    prerelease,
                     target_commitish: commitish,
                     generate_release_notes: true
                 });
