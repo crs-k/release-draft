@@ -89,7 +89,7 @@ function run() {
             }
             catch (error) {
                 if (error instanceof Error)
-                    core.info(`Git failed to find tag with error: ${error.message}. Defaulting tag to v0.1.0`);
+                    core.info(`Git failed to find tag with error: ${error.message}. Defaulting tag to v0.1.0.`);
             }
             const cleanTag = semver.clean(execTag) || '0.0.0';
             const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0';
@@ -103,8 +103,13 @@ function run() {
                 per_page: 1,
                 page: 1
             });
-            const { data: [{ tag_name: prevTag }] } = listReleaseResponse;
-            core.info(prevTag || 'none');
+            if (listReleaseResponse !== null) {
+                const { data: [{ tag_name: prevTag }] } = listReleaseResponse;
+                core.info(prevTag);
+            }
+            else {
+                core.info('No previous releases.');
+            }
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
             // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
