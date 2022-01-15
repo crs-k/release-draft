@@ -103,12 +103,13 @@ function run() {
                 per_page: 1,
                 page: 1
             });
-            if (listReleaseResponse.data) {
+            try {
                 const { data: [{ tag_name: prevTag }] } = listReleaseResponse;
                 core.info(prevTag);
             }
-            else {
-                core.info('No previous releases.');
+            catch (error) {
+                if (error instanceof Error)
+                    core.setFailed(`Retrieving previous tag failed with: ${error.message}`);
             }
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
