@@ -104,7 +104,7 @@ function run() {
                 page: 1
             });
             const { data: [{ tag_name: prevTag }] } = listReleaseResponse;
-            core.info(prevTag);
+            core.info(prevTag || 'none');
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
             // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
