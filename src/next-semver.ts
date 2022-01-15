@@ -64,13 +64,17 @@ export async function run(): Promise<void> {
     core.info(`'Next tag: ${nextTag}`)
 
     // List releases
-    /*     const listReleaseResponse = await github.rest.repos.listReleases({
+    const listReleaseResponse = await github.rest.repos.listReleases({
       owner,
       repo,
       per_page: 1,
       page: 1
-    }) */
+    })
 
+    const {
+      data: [{tag_name: prevTag}]
+    } = listReleaseResponse
+    core.info(prevTag)
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
     // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
@@ -90,18 +94,6 @@ export async function run(): Promise<void> {
     const {
       data: {id: releaseId, html_url: htmlUrl, upload_url: uploadUrl}
     } = createReleaseResponse
-
-    /*     //Create release notes
-    try {
-      await github.rest.repos.generateReleaseNotes({
-        owner,
-        repo,
-        tag_name: nextTag
-      })
-    } catch (error) {
-      if (error instanceof Error)
-        core.info(`Failed to generate release notes: ${error.message}.`)
-    } */
 
     // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
     core.setOutput('id', releaseId)
