@@ -24,6 +24,5 @@ jobs:
       - uses: ./
         with:
           repo-token: ${{ github.token }}
-          tag_name: 'refs/tags/v0.0.0'
           draft: true
           prerelease: false
