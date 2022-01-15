@@ -49,26 +49,28 @@ export async function run(): Promise<void> {
     })
 
     //Check releases for tags and check if draft release exists
-    const defaultTag = '0.1.0'
+    let defaultTag = '0.1.0'
+    let prevDraft = false
 
     try {
-      const {
-        data: [{tag_name: prevTag, draft: prevDraft}]
-      } = listReleaseResponse || {}
+      ;({
+        data: [{tag_name: defaultTag, draft: prevDraft}]
+      } = listReleaseResponse)
 
-      core.info(`'Prev tag: ${prevTag}, Prev release: ${prevDraft}`)
+      core.info(`'Prev tag: ${defaultTag}, Prev release: ${prevDraft}`)
     } catch (error) {
       if (error instanceof Error)
-        core.setFailed(
-          `Git failed to find tag with error: ${error.message}. Defaulting tag to ${defaultTag}.`
+        core.info(
+          `Failed to find tag with error: ${error.message}. Defaulting tag to ${defaultTag}.`
         )
     }
 
     const cleanTag = semver.clean(defaultTag) || '0.0.0'
     const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
-    core.info(`'Clean tag: ${cleanTag}`)
-    core.info(`'Previous tag: ${defaultTag}`)
-    core.info(`'Next tag: ${nextTag}`)
+    core.info(`Clean tag: ${cleanTag}`)
+    core.info(`Previous tag: ${defaultTag}`)
+    core.info(`Next tag: ${nextTag}`)
+    core.info(`Draft?: ${prevDraft}`)
 
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
