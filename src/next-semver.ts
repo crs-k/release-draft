@@ -51,13 +51,16 @@ export async function run(): Promise<void> {
     //Check releases for tags and check if draft release exists
     let defaultTag = '0.1.0'
     let prevDraft = false
+    let prevReleaseId = 1
 
     try {
       ;({
-        data: [{tag_name: defaultTag, draft: prevDraft}]
+        data: [{tag_name: defaultTag, draft: prevDraft, id: prevReleaseId}]
       } = listReleaseResponse)
 
-      core.info(`'Prev tag: ${defaultTag}, Prev release: ${prevDraft}`)
+      core.info(
+        `'Prev tag: ${defaultTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`
+      )
     } catch (error) {
       if (error instanceof Error)
         core.info(
@@ -71,6 +74,7 @@ export async function run(): Promise<void> {
     core.info(`Previous tag: ${defaultTag}`)
     core.info(`Next tag: ${nextTag}`)
     core.info(`Draft?: ${prevDraft}`)
+    core.info(`Prev Release ID: ${prevReleaseId}`)
 
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
