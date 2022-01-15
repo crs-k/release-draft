@@ -92,6 +92,7 @@ export async function run(): Promise<void> {
         owner,
         repo,
         release_id: prevReleaseId,
+        tag_name: targetTag,
         name: updateName,
         body: updateBody
       })

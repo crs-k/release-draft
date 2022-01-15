@@ -99,7 +99,7 @@ function run() {
             }
             // Update Release
             //Check that a previous Release Draft exists
-            if ((prevDraft === true)) {
+            if (prevDraft === true) {
                 //Generate release notes based on previous release id
                 const generateReleaseNotesResponse = yield github.rest.repos.generateReleaseNotes({
                     owner,
@@ -116,6 +116,7 @@ function run() {
                     owner,
                     repo,
                     release_id: prevReleaseId,
+                    tag_name: targetTag,
                     name: updateName,
                     body: updateBody
                 });
