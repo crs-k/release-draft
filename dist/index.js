@@ -37,7 +37,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-//import * as fs from 'fs'
 const semver = __importStar(__nccwpck_require__(1383));
 const github_1 = __nccwpck_require__(5438);
 function run() {
@@ -50,8 +49,6 @@ function run() {
             // Get owner and repo from context of payload that triggered the action
             const { owner: owner, repo: repo } = github_1.context.repo;
             const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
-            //const owner =  currentOwner
-            //const repo = currentRepo
             //List most recent release
             const listReleaseResponse = yield github.rest.repos.listReleases({
                 owner,

@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-//import * as fs from 'fs'
 import * as semver from 'semver'
 import {context, getOctokit} from '@actions/github'
 
@@ -12,10 +11,7 @@ export async function run(): Promise<void> {
 
     // Get owner and repo from context of payload that triggered the action
     const {owner: owner, repo: repo} = context.repo
-
     const commitish = core.getInput('commitish', {required: false}) || 'main' //find default branch
-    //const owner =  currentOwner
-    //const repo = currentRepo
 
     //List most recent release
     const listReleaseResponse = await github.rest.repos.listReleases({

@@ -3,7 +3,7 @@ description: 'Creates a draft release with next semver tag'
 author: 'Chris Kerins'
 inputs:
   commitish:
-    description: 'Any branch or commit SHA the Git tag is created from, unused if the Git tag already exists. Default: `main` branch'
+    description: 'Release target. Default: `main` branch'
     required: false
 outputs:
   id:
@@ -16,5 +16,5 @@ runs:
   using: 'node12'
   main: 'dist/index.js'
 branding:
-  icon: 'tag'
-  color: 'gray-dark'
+  icon: 'save'
+  color: 'blue'
