@@ -95,15 +95,15 @@ function run() {
                     release_id: prevReleaseId,
                     tag_name: targetTag,
                     name: updateName,
-                    body: updateBody
+                    body: updateBody,
+                    draft: true
                 });
                 const { data: { id: updateReleaseId } } = updateReleaseResponse;
+                // Set output variables
                 core.setOutput('update_id', updateReleaseId);
             }
             else {
                 // Create a release
-                // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
-                // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
                 const cleanTag = semver.clean(targetTag) || '0.1.0';
                 const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0';
                 core.info(`Clean tag: ${cleanTag}`);
@@ -117,11 +117,12 @@ function run() {
                     tag_name: nextTag,
                     name: nextTag,
                     target_commitish: commitish,
+                    draft: true,
                     generate_release_notes: true
                 });
                 // Get the ID, html_url, and upload URL for the created Release from the response
                 const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = createReleaseResponse;
-                // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
+                // Set output variables
                 core.setOutput('id', releaseId);
                 core.setOutput('html_url', htmlUrl);
                 core.setOutput('upload_url', uploadUrl);
