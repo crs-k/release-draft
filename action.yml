@@ -2,15 +2,8 @@ name: 'Next Semver Release Draft'
 description: 'Creates a draft release with next semver tag'
 author: 'Chris Kerins'
 inputs:
-
   commitish:
     description: 'Any branch or commit SHA the Git tag is created from, unused if the Git tag already exists. Default: `main` branch'
-    required: false
-  owner:
-    description: 'Owner of the repository if it is not the current one'
-    required: false
-  repo:
-    description: 'Repository on which to release.  Used only if you want to create the release on another repo'
     required: false
 outputs:
   id:

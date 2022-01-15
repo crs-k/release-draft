@@ -48,31 +48,10 @@ function run() {
             core.setSecret(repoToken);
             const github = (0, github_1.getOctokit)(repoToken);
             // Get owner and repo from context of payload that triggered the action
-            const { owner: currentOwner, repo: currentRepo } = github_1.context.repo;
-            /*     // Get the inputs from the workflow file
-            const tagName = core.getInput('tag_name', {required: true})
-        
-            // This removes the 'refs/tags' portion of the string, i.e. from 'refs/tags/v1.10.15' to 'v1.10.15'
-            const tag = tagName.replace('refs/tags/', '')
-            const releaseName = core
-              .getInput('release_name', {required: false})
-              .replace('refs/tags/', '') */
-            // const body = core.getInput('body', {required: false})
-            // const draft = core.getInput('draft', {required: false}) === 'true'
-            // const prerelease = core.getInput('prerelease', {required: false}) === 'true'
+            const { owner: owner, repo: repo } = github_1.context.repo;
             const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
-            // const bodyPath = core.getInput('body_path', {required: false})
-            const owner = core.getInput('owner', { required: false }) || currentOwner;
-            const repo = core.getInput('repo', { required: false }) || currentRepo;
-            /*     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let bodyFileContent: any = null
-            if (bodyPath !== '' && !!bodyPath) {
-              try {
-                bodyFileContent = fs.readFileSync(bodyPath, {encoding: 'utf8'})
-              } catch (error) {
-                if (error instanceof Error) core.setFailed(error.message)
-              }
-            } */
+            //const owner =  currentOwner
+            //const repo = currentRepo
             //List most recent release
             const listReleaseResponse = yield github.rest.repos.listReleases({
                 owner,

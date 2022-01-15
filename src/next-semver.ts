@@ -11,33 +11,11 @@ export async function run(): Promise<void> {
     const github = getOctokit(repoToken)
 
     // Get owner and repo from context of payload that triggered the action
-    const {owner: currentOwner, repo: currentRepo} = context.repo
+    const {owner: owner, repo: repo} = context.repo
 
-    /*     // Get the inputs from the workflow file
-    const tagName = core.getInput('tag_name', {required: true})
-
-    // This removes the 'refs/tags' portion of the string, i.e. from 'refs/tags/v1.10.15' to 'v1.10.15'
-    const tag = tagName.replace('refs/tags/', '')
-    const releaseName = core
-      .getInput('release_name', {required: false})
-      .replace('refs/tags/', '') */
-    // const body = core.getInput('body', {required: false})
-    // const draft = core.getInput('draft', {required: false}) === 'true'
-    // const prerelease = core.getInput('prerelease', {required: false}) === 'true'
     const commitish = core.getInput('commitish', {required: false}) || 'main' //find default branch
-
-    // const bodyPath = core.getInput('body_path', {required: false})
-    const owner = core.getInput('owner', {required: false}) || currentOwner
-    const repo = core.getInput('repo', {required: false}) || currentRepo
-    /*     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let bodyFileContent: any = null
-    if (bodyPath !== '' && !!bodyPath) {
-      try {
-        bodyFileContent = fs.readFileSync(bodyPath, {encoding: 'utf8'})
-      } catch (error) {
-        if (error instanceof Error) core.setFailed(error.message)
-      }
-    } */
+    //const owner =  currentOwner
+    //const repo = currentRepo
 
     //List most recent release
     const listReleaseResponse = await github.rest.repos.listReleases({
