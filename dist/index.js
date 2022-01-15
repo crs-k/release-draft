@@ -106,12 +106,18 @@ function run() {
             core.info(`Prev Release ID: ${prevReleaseId}`);
             // Update Release
             if ((prevDraft =  true && prevReleaseId !== 0)) {
+                const generateReleaseNotesResponse = yield github.rest.repos.generateReleaseNotes({
+                    owner,
+                    repo,
+                    tag_name: defaultTag,
+                });
+                const { data: { name: updateName, body: updateBody } } = generateReleaseNotesResponse;
                 const updateReleaseResponse = yield github.rest.repos.updateRelease({
                     owner,
                     repo,
                     release_id: prevReleaseId,
-                    name: defaultTag,
-                    body: ''
+                    name: updateName,
+                    body: updateBody
                 });
                 const { data: { id: updateReleaseId } } = updateReleaseResponse;
                 core.setOutput('update_id', updateReleaseId);
