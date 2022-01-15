@@ -48,50 +48,42 @@ export async function run(): Promise<void> {
       page: 1
     })
 
-    //Check releases for tags and check if draft release exists
-    let defaultTag = '0.1.0'
+    //Check if release is a draft, assign tag, assign release id
+    let targetTag = '0.1.0'
     let prevDraft = false
-    let prevReleaseId = 1
+    let prevReleaseId = 0
 
     try {
       ;({
-        data: [{tag_name: defaultTag, draft: prevDraft, id: prevReleaseId}]
+        data: [{tag_name: targetTag, draft: prevDraft, id: prevReleaseId}]
       } = listReleaseResponse)
 
       core.info(
-        `Prev tag: ${defaultTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`
+        `Prev tag: ${targetTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`
       )
     } catch (error) {
       if (error instanceof Error)
         core.info(
-          `Failed to find tag with error: ${error.message}. Defaulting tag to ${defaultTag}.`
+          `Failed to find tag with error: ${error.message}. Defaulting tag to ${targetTag}.`
         )
     }
 
-    const cleanTag = semver.clean(defaultTag) || '0.0.0'
-    const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
-    core.info(`Clean tag: ${cleanTag}`)
-    core.info(`Previous tag: ${defaultTag}`)
-    core.info(`Next tag: ${nextTag}`)
-    core.info(`Draft?: ${prevDraft}`)
-    core.info(`Prev Release ID: ${prevReleaseId}`)
-
     // Update Release
     //Check that a previous Release Draft exists
-    if ((prevDraft = true && prevReleaseId !== 0)) {
+    if (prevDraft === true) {
       //Generate release notes based on previous release id
       const generateReleaseNotesResponse =
         await github.rest.repos.generateReleaseNotes({
           owner,
           repo,
-          tag_name: defaultTag
+          tag_name: targetTag
         })
       //Assign output for use in release update
       const {
         data: {name: updateName, body: updateBody}
       } = generateReleaseNotesResponse
 
-      core.info(`Targeted: ${defaultTag}`)
+      core.info(`Targeted: ${targetTag}`)
       core.info(`Generated Name: ${updateName}`)
       core.info(`Generated Body: ${updateBody}`)
 
@@ -111,6 +103,16 @@ export async function run(): Promise<void> {
       // Create a release
       // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
       // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
+
+      const cleanTag = semver.clean(targetTag) || '0.1.0'
+      const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
+
+      core.info(`Clean tag: ${cleanTag}`)
+      core.info(`Previous tag: ${targetTag}`)
+      core.info(`Next tag: ${nextTag}`)
+      core.info(`Draft?: ${prevDraft}`)
+      core.info(`Prev Release ID: ${prevReleaseId}`)
+
       const createReleaseResponse = await github.rest.repos.createRelease({
         owner,
         repo,
