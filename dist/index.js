@@ -96,6 +96,13 @@ function run() {
             core.info(`'Clean tag: ${cleanTag}`);
             core.info(`'Previous tag: ${execTag}`);
             core.info(`'Next tag: ${nextTag}`);
+            // List releases
+            /*     const listReleaseResponse = await github.rest.repos.listReleases({
+              owner,
+              repo,
+              per_page: 1,
+              page: 1
+            }) */
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
             // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
@@ -111,6 +118,18 @@ function run() {
             });
             // Get the ID, html_url, and upload URL for the created Release from the response
             const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = createReleaseResponse;
+            //Create release notes
+            try {
+                yield github.rest.repos.generateReleaseNotes({
+                    owner,
+                    repo,
+                    tag_name: nextTag
+                });
+            }
+            catch (error) {
+                if (error instanceof Error)
+                    core.info(`Failed to generate release notes: ${error.message}.`);
+            }
             // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
             core.setOutput('id', releaseId);
             core.setOutput('html_url', htmlUrl);
