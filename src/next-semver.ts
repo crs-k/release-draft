@@ -74,10 +74,10 @@ export async function run(): Promise<void> {
 
     try {
       const {
-        data: [{tag_name: prevTag}]
+        data: [{tag_name: prevTag, draft: prevDraft}]
       } = listReleaseResponse || {}
 
-      core.info(prevTag)
+      core.info(`'Prev tag: ${prevTag}, Prev release: ${prevDraft}`)
     } catch (error) {
       if (error instanceof Error)
         core.setFailed(`Retrieving previous tag failed with: ${error.message}`)
