@@ -103,7 +103,7 @@ function run() {
                 per_page: 1,
                 page: 1
             });
-            if (listReleaseResponse) {
+            if (listReleaseResponse.data) {
                 const { data: [{ tag_name: prevTag }] } = listReleaseResponse;
                 core.info(prevTag);
             }
