@@ -91,7 +91,7 @@ function run() {
                 ({
                     data: [{ tag_name: defaultTag, draft: prevDraft, id: prevReleaseId }]
                 } = listReleaseResponse);
-                core.info(`'Prev tag: ${defaultTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`);
+                core.info(`Prev tag: ${defaultTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`);
             }
             catch (error) {
                 if (error instanceof Error)
@@ -104,6 +104,18 @@ function run() {
             core.info(`Next tag: ${nextTag}`);
             core.info(`Draft?: ${prevDraft}`);
             core.info(`Prev Release ID: ${prevReleaseId}`);
+            // Update Release
+            if ((prevDraft =  true && prevReleaseId !== 0)) {
+                const updateReleaseResponse = yield github.rest.repos.updateRelease({
+                    owner,
+                    repo,
+                    release_id: prevReleaseId,
+                    name: defaultTag,
+                    body: ''
+                });
+                const { data: { id: updateReleaseId } } = updateReleaseResponse;
+                core.setOutput('update_id', updateReleaseId);
+            }
             // Create a release
             // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
             // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release

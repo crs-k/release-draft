@@ -59,7 +59,7 @@ export async function run(): Promise<void> {
       } = listReleaseResponse)
 
       core.info(
-        `'Prev tag: ${defaultTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`
+        `Prev tag: ${defaultTag}, Prev Release Type: ${prevDraft}, Prev Release ID: ${prevReleaseId}`
       )
     } catch (error) {
       if (error instanceof Error)
@@ -75,6 +75,21 @@ export async function run(): Promise<void> {
     core.info(`Next tag: ${nextTag}`)
     core.info(`Draft?: ${prevDraft}`)
     core.info(`Prev Release ID: ${prevReleaseId}`)
+
+    // Update Release
+    if ((prevDraft = true && prevReleaseId !== 0)) {
+      const updateReleaseResponse = await github.rest.repos.updateRelease({
+        owner,
+        repo,
+        release_id: prevReleaseId,
+        name: defaultTag,
+        body: ''
+      })
+      const {
+        data: {id: updateReleaseId}
+      } = updateReleaseResponse
+      core.setOutput('update_id', updateReleaseId)
+    }
 
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
