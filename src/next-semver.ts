@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
+//import * as exec from '@actions/exec'
 import * as fs from 'fs'
 import * as semver from 'semver'
 import {context, getOctokit} from '@actions/github'
@@ -40,30 +40,7 @@ export async function run(): Promise<void> {
       }
     }
 
-    //Check for tags & propose next tag
-    let execTag = '0.1.0'
-    const options = {
-      listeners: {
-        stdout: data => {
-          execTag = data.toString()
-        }
-      }
-    }
-    try {
-      await exec.exec('git describe --abbrev=0 --tags', [], options)
-    } catch (error) {
-      if (error instanceof Error)
-        core.info(
-          `Git failed to find tag with error: ${error.message}. Defaulting tag to v0.1.0.`
-        )
-    }
-    const cleanTag = semver.clean(execTag) || '0.0.0'
-    const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
-    core.info(`'Clean tag: ${cleanTag}`)
-    core.info(`'Previous tag: ${execTag}`)
-    core.info(`'Next tag: ${nextTag}`)
-
-    // List releases
+    //List most recent release
     const listReleaseResponse = await github.rest.repos.listReleases({
       owner,
       repo,
@@ -71,18 +48,27 @@ export async function run(): Promise<void> {
       page: 1
     })
 
+    //Check releases for tags and check if draft release exists
+    const defaultTag = '0.1.0'
+
     try {
       const {
         data: [{tag_name: prevTag, draft: prevDraft}]
       } = listReleaseResponse || {}
 
-      core.info(
-        `'Prev tag: ${prevTag}, Prev release: ${prevDraft}, ${listReleaseResponse.data}`
-      )
+      core.info(`'Prev tag: ${prevTag}, Prev release: ${prevDraft}`)
     } catch (error) {
       if (error instanceof Error)
-        core.setFailed(`Retrieving previous tag failed with: ${error.message}`)
+        core.setFailed(
+          `Git failed to find tag with error: ${error.message}. Defaulting tag to ${defaultTag}.`
+        )
     }
+
+    const cleanTag = semver.clean(defaultTag) || '0.0.0'
+    const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
+    core.info(`'Clean tag: ${cleanTag}`)
+    core.info(`'Previous tag: ${defaultTag}`)
+    core.info(`'Next tag: ${nextTag}`)
 
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
