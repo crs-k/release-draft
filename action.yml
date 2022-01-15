@@ -5,6 +5,9 @@ inputs:
   commitish:
     description: 'Release target. Default: `main` branch'
     required: false
+  bump:
+    description: 'Semver bump type. Options: major, minor, patch, prerelease. Default: patch.'
+    required: false
 outputs:
   id:
     description: 'The ID of the created Release'
