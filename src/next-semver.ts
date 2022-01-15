@@ -12,6 +12,7 @@ export async function run(): Promise<void> {
     // Get owner and repo from context of payload that triggered the action
     const {owner: owner, repo: repo} = context.repo
     const commitish = core.getInput('commitish', {required: false}) || 'main' //find default branch
+    //const bump = core.getInput('bump', {required: false}) || 'patch' //TODO use this input for semver inc type
 
     //List most recent release
     const listReleaseResponse = await github.rest.repos.listReleases({
@@ -80,7 +81,7 @@ export async function run(): Promise<void> {
       // Create a release
       //Clean and bump version
       const cleanTag = semver.clean(targetTag) || '0.1.0'
-      const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'
+      const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0' //TODO add bump input here
 
       core.info(`Clean tag: ${cleanTag}`)
       core.info(`Previous tag: ${targetTag}`)

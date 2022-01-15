@@ -49,6 +49,7 @@ function run() {
             // Get owner and repo from context of payload that triggered the action
             const { owner: owner, repo: repo } = github_1.context.repo;
             const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
+            //const bump = core.getInput('bump', {required: false}) || 'patch' //TODO use this input for semver inc type
             //List most recent release
             const listReleaseResponse = yield github.rest.repos.listReleases({
                 owner,
@@ -106,7 +107,7 @@ function run() {
                 // Create a release
                 //Clean and bump version
                 const cleanTag = semver.clean(targetTag) || '0.1.0';
-                const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0';
+                const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0'; //TODO add bump input here
                 core.info(`Clean tag: ${cleanTag}`);
                 core.info(`Previous tag: ${targetTag}`);
                 core.info(`Next tag: ${nextTag}`);
