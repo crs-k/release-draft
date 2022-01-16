@@ -61,6 +61,7 @@ function run() {
             let prevDraft = false;
             let prevReleaseId = 0;
             try {
+                ;
                 ({
                     data: [{ tag_name: targetTag, draft: prevDraft, id: prevReleaseId }]
                 } = listReleaseResponse);
@@ -97,9 +98,12 @@ function run() {
                     body: updateBody,
                     draft: true
                 });
-                const { data: { id: updateReleaseId } } = updateReleaseResponse;
+                // Get the ID, html_url, and upload URL for the created Release from the response
+                const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = updateReleaseResponse;
                 // Set output variables
-                core.setOutput('update_id', updateReleaseId);
+                core.setOutput('id', releaseId);
+                core.setOutput('html_url', htmlUrl);
+                core.setOutput('upload_url', uploadUrl);
             }
             else {
                 // Create a release

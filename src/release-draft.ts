@@ -70,13 +70,19 @@ export async function run(): Promise<void> {
         body: updateBody,
         draft: true
       })
+
+      // Get the ID, html_url, and upload URL for the created Release from the response
       const {
-        data: {id: updateReleaseId}
+        data: {id: releaseId, html_url: htmlUrl, upload_url: uploadUrl}
       } = updateReleaseResponse
 
       // Set output variables
-      core.setOutput('update_id', updateReleaseId)
+      core.setOutput('id', releaseId)
+      core.setOutput('html_url', htmlUrl)
+      core.setOutput('upload_url', uploadUrl)
+
     } else {
+      
       // Create a release
       //Clean and bump version
       const cleanTag = semver.clean(targetTag) || '0.1.0'
