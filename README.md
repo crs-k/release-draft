@@ -1,6 +1,6 @@
-<p align="center">
-  <a href="https://github.com/crs-k/release-draft/actions"><img alt="ci status" src="https://github.com/crs-k/release-draft/workflows/ci/badge.svg"></a>
-</p>
+
+  ![Tests](https://github.com/crs-k/release-draft/workflows/ci.yml/badge.svg)
+
 
 # Release Draft Create & Update
 
