@@ -1,6 +1,7 @@
 jest.mock('@actions/core')
 jest.mock('@actions/github')
-jest.mock('semver')
+jest.mock('semver/functions/clean')
+jest.mock('semver/functions/inc')
 
 const core = require('@actions/core')
 const {context, getOctokit} = require('@actions/github')

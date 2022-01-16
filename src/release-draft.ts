@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
-import * as semver from 'semver'
 import {context, getOctokit} from '@actions/github'
+import clean from 'semver/functions/clean'
+import inc from 'semver/functions/inc'
 
 export async function run(): Promise<void> {
   try {
@@ -83,8 +84,8 @@ export async function run(): Promise<void> {
     } else {
       // Create a release
       //Clean and bump version
-      const cleanTag = semver.clean(targetTag) || '0.1.0'
-      const bumpTag = semver.inc(cleanTag, 'patch') || '0.1.0'
+      const cleanTag = clean(targetTag) || '0.1.0'
+      const bumpTag = inc(cleanTag, 'patch') || '0.1.0'
       const nextTag = `v${bumpTag}`
 
       core.info(`Clean tag: ${cleanTag}`)
