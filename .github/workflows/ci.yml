@@ -55,6 +55,7 @@ jobs:
 
   Build:
     name: Build
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     needs: [Lint, Test-Unit, Test-Action]
     steps:
