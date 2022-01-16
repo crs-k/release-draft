@@ -80,9 +80,7 @@ export async function run(): Promise<void> {
       core.setOutput('id', releaseId)
       core.setOutput('html_url', htmlUrl)
       core.setOutput('upload_url', uploadUrl)
-
     } else {
-      
       // Create a release
       //Clean and bump version
       const cleanTag = semver.clean(targetTag) || '0.1.0'

@@ -22,7 +22,7 @@ describe('Existing Draft Release Update', () => {
     })
 
     updateRelease = jest.fn().mockReturnValueOnce({
-      data: {id: 'releaseId'}
+      data: {id: 'releaseId', html_url: 'htmlUrl', upload_url: 'uploadUrl'}
     })
 
     context.repo = {
@@ -76,10 +76,10 @@ describe('Existing Draft Release Update', () => {
 
   test('Outputs are set', async () => {
     core.setOutput = jest.fn()
-
     await run()
-
-    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'update_id', 'releaseId')
+    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'id', 'releaseId')
+    expect(core.setOutput).toHaveBeenNthCalledWith(2, 'html_url', 'htmlUrl')
+    expect(core.setOutput).toHaveBeenNthCalledWith(3, 'upload_url', 'uploadUrl')
   })
 
   test('Action fails elegantly', async () => {
