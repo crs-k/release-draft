@@ -4,7 +4,7 @@ jest.mock('semver')
 
 const core = require('@actions/core')
 const {context, getOctokit} = require('@actions/github')
-import {run} from '../src/next-semver'
+import {run} from '../src/release-draft'
 
 /* eslint-disable no-undef */
 describe('Existing Draft Release Update', () => {

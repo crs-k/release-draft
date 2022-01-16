@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 1544:
+/***/ 2774:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -11646,9 +11646,9 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const next_semver_1 = __nccwpck_require__(1544);
+const release_draft_1 = __nccwpck_require__(2774);
 if (require.main === require.cache[eval('__filename')]) {
-    (0, next_semver_1.run)();
+    (0, release_draft_1.run)();
 }
 
 })();
