@@ -61,7 +61,6 @@ function run() {
             let prevDraft = false;
             let prevReleaseId = 0;
             try {
-                ;
                 ({
                     data: [{ tag_name: targetTag, draft: prevDraft, id: prevReleaseId }]
                 } = listReleaseResponse);
