@@ -8,7 +8,7 @@ inputs:
     description: 'Release target. Default: `main` branch'
     required: false
   bump:
-    description: 'Semver bump type. Options: major, minor, patch, prerelease. Default: patch.'
+    description: 'NOT AVAILABLE. Semver bump type. Options: major, minor, patch, prerelease. Default: patch.'
     required: false
 outputs:
   id:
