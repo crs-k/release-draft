@@ -50,7 +50,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-
+        with:
+          repo-token: ${{ github.token }}
 
   Build:
     name: Build

@@ -2,6 +2,8 @@ name: 'Next Semver Release Draft'
 description: 'Creates a draft release with next semver tag'
 author: 'Chris Kerins'
 inputs:
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
   commitish:
     description: 'Release target. Default: `main` branch'
     required: false
