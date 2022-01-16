@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Release Draft
-      uses: TBD
+      uses: crs-k/release-draft@v0.3.0
       with:
         repo-token: ${{ github.token }}
 ```
