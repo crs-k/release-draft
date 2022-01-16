@@ -61,23 +61,26 @@ function run() {
                 page: 1
             });
             //Check if release is a draft, assign tag, assign release id
-            let targetTag = '0.1.0';
-            let prevDraft = false;
-            let prevReleaseId = 0;
-            try {
-                ;
-                ({
-                    data: [{ tag_name: targetTag, draft: prevDraft, id: prevReleaseId }]
-                } = listReleaseResponse);
-                core.info(`Previous Tag: ${targetTag}`);
-                core.info(`Previous Release Type: ${prevDraft}`);
-                core.info(`Previous Release ID: ${prevReleaseId}`);
-            }
-            catch (error) {
-                if (error instanceof Error)
-                    core.info(`Failed to find tag with error: ${error.message}.`);
-                core.info(`Defaulting tag to ${targetTag}.`);
-            }
+            /*     let targetTag = '0.1.0'
+                let prevDraft = false
+                let prevReleaseId = 0
+            
+                try {
+                  ;({
+                    data: [{tag_name: targetTag, draft: prevDraft, id: prevReleaseId}]
+                  } = listReleaseResponse)
+            
+                  core.info(`Previous Tag: ${targetTag}`)
+                  core.info(`Previous Release Type: ${prevDraft}`)
+                  core.info(`Previous Release ID: ${prevReleaseId}`)
+                } catch (error) {
+                  if (error instanceof Error)
+                    core.info(`Failed to find tag with error: ${error.message}.`)
+                  core.info(`Defaulting tag to ${targetTag}.`)
+                } */
+            const { data: [{ tag_name: targetTag }] } = listReleaseResponse;
+            const { data: [{ draft: prevDraft }] } = listReleaseResponse;
+            const { data: [{ id: prevReleaseId }] } = listReleaseResponse;
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {

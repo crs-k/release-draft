@@ -23,7 +23,7 @@ export async function run(): Promise<void> {
     })
 
     //Check if release is a draft, assign tag, assign release id
-    let targetTag = '0.1.0'
+    /*     let targetTag = '0.1.0'
     let prevDraft = false
     let prevReleaseId = 0
 
@@ -39,7 +39,19 @@ export async function run(): Promise<void> {
       if (error instanceof Error)
         core.info(`Failed to find tag with error: ${error.message}.`)
       core.info(`Defaulting tag to ${targetTag}.`)
-    }
+    } */
+
+    const {
+      data: [{tag_name: targetTag}]
+    } = listReleaseResponse
+
+    const {
+      data: [{draft: prevDraft}]
+    } = listReleaseResponse
+
+    const {
+      data: [{id: prevReleaseId}]
+    } = listReleaseResponse
 
     // Update Release
     //Check that a previous Release Draft exists
