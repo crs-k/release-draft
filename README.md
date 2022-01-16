@@ -5,10 +5,8 @@
 # Release Draft Create & Update
 
 This Action automatically creates and/or updates release drafts.
-
-Generates & updates release notes. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
-
-Draft tag defaults to previous semver compliant tag + patch
+* Generates & updates release notes. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes).
+* Draft tag defaults to previous semver compliant tag +1 patch.
 
 ## Usage
 
