@@ -61,7 +61,9 @@ function run() {
                 page: 1
             });
             //Check if release is a draft, assign tag, assign release id
-            const { data: [{ tag_name: targetTag = '0.1.0', draft: prevDraft = false, id: prevReleaseId = 0 }] } = listReleaseResponse;
+            const targetTag = listReleaseResponse.data[0].tag_name || '0.1.0';
+            const prevDraft = listReleaseResponse.data[0].draft || false;
+            const prevReleaseId = listReleaseResponse.data[0].id || 0;
             core.info(`Targeted: ${targetTag}`);
             core.info(`Draft?: ${prevDraft}`);
             core.info(`Previous Release ID: ${prevReleaseId}`);
