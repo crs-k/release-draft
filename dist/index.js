@@ -44,6 +44,7 @@ const github_1 = __nccwpck_require__(5438);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
 function run() {
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get authenticated GitHub client
@@ -61,9 +62,9 @@ function run() {
                 page: 1
             });
             //Check if release is a draft, assign tag, assign release id
-            const targetTag = listReleaseResponse.data[0].tag_name || '0.1.0';
-            const prevDraft = listReleaseResponse.data[0].draft || false;
-            const prevReleaseId = listReleaseResponse.data[0].id || 0;
+            const targetTag = (_a = listReleaseResponse.data[0].tag_name) !== null && _a !== void 0 ? _a : '0.1.0';
+            const prevDraft = (_b = listReleaseResponse.data[0].draft) !== null && _b !== void 0 ? _b : false;
+            const prevReleaseId = (_c = listReleaseResponse.data[0].id) !== null && _c !== void 0 ? _c : 0;
             core.info(`Targeted: ${targetTag}`);
             core.info(`Draft?: ${prevDraft}`);
             core.info(`Previous Release ID: ${prevReleaseId}`);
