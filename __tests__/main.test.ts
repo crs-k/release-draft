@@ -1,10 +1,11 @@
 jest.mock('@actions/core')
 jest.mock('@actions/github')
-jest.mock('semver')
+jest.mock('semver/functions/clean')
+jest.mock('semver/functions/inc')
 
 const core = require('@actions/core')
 const {context, getOctokit} = require('@actions/github')
-import {run} from '../src/next-semver'
+import {run} from '../src/release-draft'
 
 /* eslint-disable no-undef */
 describe('Existing Draft Release Update', () => {
@@ -22,7 +23,7 @@ describe('Existing Draft Release Update', () => {
     })
 
     updateRelease = jest.fn().mockReturnValueOnce({
-      data: {id: 'releaseId'}
+      data: {id: 'releaseId', html_url: 'htmlUrl', upload_url: 'uploadUrl'}
     })
 
     context.repo = {
@@ -76,10 +77,24 @@ describe('Existing Draft Release Update', () => {
 
   test('Outputs are set', async () => {
     core.setOutput = jest.fn()
+    await run()
+    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'id', 'releaseId')
+    expect(core.setOutput).toHaveBeenNthCalledWith(2, 'html_url', 'htmlUrl')
+    expect(core.setOutput).toHaveBeenNthCalledWith(3, 'upload_url', 'uploadUrl')
+  })
 
+  test('Infos are set', async () => {
+    core.info = jest.fn()
     await run()
 
-    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'update_id', 'releaseId')
+    expect(core.info).toHaveBeenNthCalledWith(1, 'Targeted: v1.0.0')
+    expect(core.info).toHaveBeenNthCalledWith(2, 'Draft?: true')
+    expect(core.info).toHaveBeenNthCalledWith(
+      3,
+      'Previous Release ID: releaseId'
+    )
+    expect(core.info).toHaveBeenNthCalledWith(4, 'Generated Name: updateName')
+    expect(core.info).toHaveBeenNthCalledWith(5, 'Generated Body: updateBody')
   })
 
   test('Action fails elegantly', async () => {
@@ -106,7 +121,7 @@ describe('New Draft Release Creation', () => {
 
   beforeEach(() => {
     listReleases = jest.fn().mockReturnValueOnce({
-      data: [{tag_name: 'v0.1.0', draft: false, id: 'releaseId'}]
+      data: [{tag_name: undefined, draft: undefined, id: undefined}] //updated to undefined to test default parameters
     })
 
     createRelease = jest.fn().mockReturnValueOnce({
@@ -157,9 +172,20 @@ describe('New Draft Release Creation', () => {
   test('Outputs are set', async () => {
     core.setOutput = jest.fn()
     await run()
+
     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'id', 'releaseId')
     expect(core.setOutput).toHaveBeenNthCalledWith(2, 'html_url', 'htmlUrl')
     expect(core.setOutput).toHaveBeenNthCalledWith(3, 'upload_url', 'uploadUrl')
+  })
+
+  test('Infos are set', async () => {
+    core.info = jest.fn()
+    await run()
+
+    expect(core.info).toHaveBeenNthCalledWith(1, 'Targeted: 0.1.0')
+    expect(core.info).toHaveBeenNthCalledWith(2, 'Draft?: false')
+    expect(core.info).toHaveBeenNthCalledWith(3, 'Previous Release ID: 0')
+    expect(core.info).toHaveBeenNthCalledWith(4, 'Next tag: v0.1.0')
   })
 
   test('Action fails elegantly', async () => {

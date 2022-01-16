@@ -1,4 +1,4 @@
-import {run} from './next-semver'
+import {run} from './release-draft'
 
 if (require.main === module) {
   run()

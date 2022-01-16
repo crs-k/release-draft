@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
-import * as semver from 'semver'
 import {context, getOctokit} from '@actions/github'
+import clean from 'semver/functions/clean'
+import inc from 'semver/functions/inc'
 
 export async function run(): Promise<void> {
   try {
@@ -22,23 +23,19 @@ export async function run(): Promise<void> {
     })
 
     //Check if release is a draft, assign tag, assign release id
-    let targetTag = '0.1.0'
-    let prevDraft = false
-    let prevReleaseId = 0
+    const {
+      data: [
+        {
+          tag_name: targetTag = '0.1.0',
+          draft: prevDraft = false,
+          id: prevReleaseId = 0
+        }
+      ]
+    } = listReleaseResponse
 
-    try {
-      ;({
-        data: [{tag_name: targetTag, draft: prevDraft, id: prevReleaseId}]
-      } = listReleaseResponse)
-
-      core.info(`Previous Tag: ${targetTag}`)
-      core.info(`Previous Release Type: ${prevDraft}`)
-      core.info(`Previous Release ID: ${prevReleaseId}`)
-    } catch (error) {
-      if (error instanceof Error)
-        core.info(`Failed to find tag with error: ${error.message}.`)
-      core.info(`Defaulting tag to ${targetTag}.`)
-    }
+    core.info(`Targeted: ${targetTag}`)
+    core.info(`Draft?: ${prevDraft}`)
+    core.info(`Previous Release ID: ${prevReleaseId}`)
 
     // Update Release
     //Check that a previous Release Draft exists
@@ -56,7 +53,6 @@ export async function run(): Promise<void> {
         data: {name: updateName, body: updateBody}
       } = generateReleaseNotesResponse
 
-      core.info(`Targeted: ${targetTag}`)
       core.info(`Generated Name: ${updateName}`)
       core.info(`Generated Body: ${updateBody}`)
 
@@ -70,24 +66,24 @@ export async function run(): Promise<void> {
         body: updateBody,
         draft: true
       })
+
+      // Get the ID, html_url, and upload URL for the created Release from the response
       const {
-        data: {id: updateReleaseId}
+        data: {id: releaseId, html_url: htmlUrl, upload_url: uploadUrl}
       } = updateReleaseResponse
 
       // Set output variables
-      core.setOutput('update_id', updateReleaseId)
+      core.setOutput('id', releaseId)
+      core.setOutput('html_url', htmlUrl)
+      core.setOutput('upload_url', uploadUrl)
     } else {
       // Create a release
       //Clean and bump version
-      const cleanTag = semver.clean(targetTag) || '0.1.0'
-      const bumpTag = semver.inc(cleanTag, 'patch') || '0.1.0'
+      const cleanTag = clean(targetTag) || '0.1.0'
+      const bumpTag = inc(cleanTag, 'patch') || '0.1.0'
       const nextTag = `v${bumpTag}`
 
-      core.info(`Clean tag: ${cleanTag}`)
-      core.info(`Previous tag: ${targetTag}`)
       core.info(`Next tag: ${nextTag}`)
-      core.info(`Draft?: ${prevDraft}`)
-      core.info(`Prev Release ID: ${prevReleaseId}`)
 
       const createReleaseResponse = await github.rest.repos.createRelease({
         owner,
