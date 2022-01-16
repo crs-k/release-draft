@@ -1,5 +1,5 @@
 name: 'Release Draft'
-description: 'Creates and updates release draft with release notes'
+description: 'Creates & updates GitHub release draft, automatically generates release notes, and bumps semver compliant tags.'
 author: 'Chris Kerins'
 inputs:
   repo-token:
