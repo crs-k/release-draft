@@ -121,7 +121,7 @@ describe('New Draft Release Creation', () => {
 
   beforeEach(() => {
     listReleases = jest.fn().mockReturnValueOnce({
-      data: [{tag_name: null, draft: null, id: null}] //changed to nulls to test fresh repos
+      data: [{tag_name: undefined, draft: null, id: null}] //changed to nulls to test fresh repos
     })
 
     createRelease = jest.fn().mockReturnValueOnce({
