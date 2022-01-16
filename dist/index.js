@@ -61,26 +61,10 @@ function run() {
                 page: 1
             });
             //Check if release is a draft, assign tag, assign release id
-            /*     let targetTag = '0.1.0'
-                let prevDraft = false
-                let prevReleaseId = 0
-            
-                try {
-                  ;({
-                    data: [{tag_name: targetTag, draft: prevDraft, id: prevReleaseId}]
-                  } = listReleaseResponse)
-            
-                  core.info(`Previous Tag: ${targetTag}`)
-                  core.info(`Previous Release Type: ${prevDraft}`)
-                  core.info(`Previous Release ID: ${prevReleaseId}`)
-                } catch (error) {
-                  if (error instanceof Error)
-                    core.info(`Failed to find tag with error: ${error.message}.`)
-                  core.info(`Defaulting tag to ${targetTag}.`)
-                } */
-            const { data: [{ tag_name: targetTag }] } = listReleaseResponse;
-            const { data: [{ draft: prevDraft }] } = listReleaseResponse;
-            const { data: [{ id: prevReleaseId }] } = listReleaseResponse;
+            const { data: [{ tag_name: targetTag = '0.1.0', draft: prevDraft = false, id: prevReleaseId = 0 }] } = listReleaseResponse;
+            core.info(`Targeted: ${targetTag}`);
+            core.info(`Draft?: ${prevDraft}`);
+            core.info(`Previous Release ID: ${prevReleaseId}`);
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {
@@ -92,7 +76,6 @@ function run() {
                 });
                 //Assign output for use in release update
                 const { data: { name: updateName, body: updateBody } } = generateReleaseNotesResponse;
-                core.info(`Targeted: ${targetTag}`);
                 core.info(`Generated Name: ${updateName}`);
                 core.info(`Generated Body: ${updateBody}`);
                 //Update existing draft
@@ -118,11 +101,7 @@ function run() {
                 const cleanTag = (0, clean_1.default)(targetTag) || '0.1.0';
                 const bumpTag = (0, inc_1.default)(cleanTag, 'patch') || '0.1.0';
                 const nextTag = `v${bumpTag}`;
-                core.info(`Clean tag: ${cleanTag}`);
-                core.info(`Previous tag: ${targetTag}`);
                 core.info(`Next tag: ${nextTag}`);
-                core.info(`Draft?: ${prevDraft}`);
-                core.info(`Prev Release ID: ${prevReleaseId}`);
                 const createReleaseResponse = yield github.rest.repos.createRelease({
                     owner,
                     repo,
