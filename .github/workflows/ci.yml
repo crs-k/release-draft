@@ -25,7 +25,7 @@ jobs:
           node-version: 14
 
       - name: Install Dependencies
-        run: npm ci --no-progress --ignore-scripts=false
+        run: npm ci --ignore-scripts=false
       
       - name: Lint & Format
         run: 'npm run lint && npm run format'
