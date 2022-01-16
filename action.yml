@@ -1,5 +1,5 @@
-name: 'Next Semver Release Draft'
-description: 'Creates a draft release with next semver tag'
+name: 'Release Draft'
+description: 'Creates and updates release draft with release notes'
 author: 'Chris Kerins'
 inputs:
   repo-token:
@@ -8,7 +8,7 @@ inputs:
     description: 'Release target. Default: `main` branch'
     required: false
   bump:
-    description: 'Semver bump type. Options: major, minor, patch, prerelease. Default: patch.'
+    description: 'NOT AVAILABLE. Semver bump type. Options: major, minor, patch, prerelease. Default: patch.'
     required: false
 outputs:
   id:
