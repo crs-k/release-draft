@@ -4,98 +4,52 @@
 
 # Release Draft Create & Update
 
-Automatically creates or updates release drafts.
+This Action automatically creates and/or updates release drafts.
 
-## Create an action from this template
+Generates & updates release notes. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
 
-Click the `Use this Template` and provide the new repo details for your action
+Draft tag defaults to previous semver compliant tag + patch
 
-## Code in Main
+## Usage
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+### Pre-requisites
+Create a workflow `.yml` file in your repositories `.github/workflows` directory. An [example workflow](#example-workflow) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
 
-Install the dependencies  
-```bash
-$ npm install
-```
+### Inputs
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
+* `repo-token` - The GITHUB_TOKEN secret. 
+* `commitish` - Release target. Default: `main` branch.
+* `bump` - NOT AVAILABLE. Semver bump type. Options: major, minor, patch, prerelease. Default: patch.
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+### Outputs
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+* `id` - The ID of the created Release.
+* `html_url` - The URL users can navigate to in order to view the release.
+* `upload_url` - The URL for uploading assets to the release.
 
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
+### Example workflow
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+name: Release Draft
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+      types: [published]
+
+jobs:
+  release_draft:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Release Draft
+      uses: TBD
+      with:
+        repo-token: ${{ github.token }}
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
