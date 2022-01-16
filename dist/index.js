@@ -106,7 +106,8 @@ function run() {
                 // Create a release
                 //Clean and bump version
                 const cleanTag = semver.clean(targetTag) || '0.1.0';
-                const nextTag = `v${semver.inc(cleanTag, 'patch')}` || 'v0.1.0';
+                const bumpTag = semver.inc(cleanTag, 'patch') || '0.1.0';
+                const nextTag = `v${bumpTag}`;
                 core.info(`Clean tag: ${cleanTag}`);
                 core.info(`Previous tag: ${targetTag}`);
                 core.info(`Next tag: ${nextTag}`);
