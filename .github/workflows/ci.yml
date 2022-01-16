@@ -45,12 +45,12 @@ jobs:
         run: 'npm run test'
 
   Test-Action: # make sure the action works on a clean machine without building
+    name: Test - Action
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-        with:
-          repo-token: ${{ github.token }}
+
 
   Build:
     name: Build
