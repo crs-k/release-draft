@@ -35,12 +35,11 @@ export async function run(): Promise<void> {
     //Check that a previous Release Draft exists
     if (prevDraft === true) {
       //Generate release notes based on previous release id
-      const generateReleaseNotesResponse =
-        await github.rest.repos.generateReleaseNotes({
-          owner,
-          repo,
-          tag_name: targetTag
-        })
+      const generateReleaseNotesResponse = await github.rest.repos.generateReleaseNotes({
+        owner,
+        repo,
+        tag_name: targetTag
+      })
 
       //Assign output for use in release update
       const {
@@ -100,7 +99,6 @@ export async function run(): Promise<void> {
       core.setOutput('upload_url', uploadUrl)
     }
   } catch (error) {
-    if (error instanceof Error)
-      core.setFailed(`Action failed with ${error.message}`)
+    if (error instanceof Error) core.setFailed(`Action failed with ${error.message}`)
   }
 }

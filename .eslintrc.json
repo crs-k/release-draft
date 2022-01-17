@@ -20,6 +20,7 @@
       "@typescript-eslint/ban-ts-comment": "error",
       "camelcase": "off",
       "@typescript-eslint/consistent-type-assertions": "error",
+      "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
       "@typescript-eslint/explicit-function-return-type": ["error", {"allowExpressions": true}],
       "@typescript-eslint/func-call-spacing": ["error", "never"],
       "@typescript-eslint/no-array-constructor": "error",
@@ -45,7 +46,11 @@
       "semi": "off",
       "@typescript-eslint/semi": ["error", "never"],
       "@typescript-eslint/type-annotation-spacing": "error",
-      "@typescript-eslint/unbound-method": "error"
+      "@typescript-eslint/unbound-method": "error",
+      "@typescript-eslint/method-signature-style": "error",
+      "@typescript-eslint/no-dynamic-delete": "error",
+      "@typescript-eslint/prefer-enum-initializers": "error",
+      "@typescript-eslint/prefer-optional-chain": "error"
     },
     "env": {
       "node": true,
