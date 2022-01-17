@@ -49,6 +49,6 @@ jobs:
     - name: Release Draft
       uses: crs-k/release-draft@v0.3.3
       with:
-        repo-token: ${{ github.token }}
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
 ```
 

@@ -89,10 +89,7 @@ describe('Existing Draft Release Update', () => {
 
     expect(core.info).toHaveBeenNthCalledWith(1, 'Targeted: v1.0.0')
     expect(core.info).toHaveBeenNthCalledWith(2, 'Draft?: true')
-    expect(core.info).toHaveBeenNthCalledWith(
-      3,
-      'Previous Release ID: releaseId'
-    )
+    expect(core.info).toHaveBeenNthCalledWith(3, 'Previous Release ID: releaseId')
     expect(core.info).toHaveBeenNthCalledWith(4, 'Generated Name: updateName')
     expect(core.info).toHaveBeenNthCalledWith(5, 'Generated Body: updateBody')
   })
@@ -108,9 +105,7 @@ describe('Existing Draft Release Update', () => {
     await run()
 
     expect(updateRelease).toHaveBeenCalled()
-    expect(core.setFailed).toHaveBeenCalledWith(
-      'Action failed with Error creating release'
-    )
+    expect(core.setFailed).toHaveBeenCalledWith('Action failed with Error creating release')
     expect(core.setOutput).toHaveBeenCalledTimes(0)
   })
 })
@@ -199,9 +194,7 @@ describe('New Draft Release Creation', () => {
     await run()
 
     expect(createRelease).toHaveBeenCalled()
-    expect(core.setFailed).toHaveBeenCalledWith(
-      'Action failed with Error creating release'
-    )
+    expect(core.setFailed).toHaveBeenCalledWith('Action failed with Error creating release')
     expect(core.setOutput).toHaveBeenCalledTimes(0)
   })
 })
