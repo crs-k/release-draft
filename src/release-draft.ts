@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import clean from 'semver/functions/clean'
+import {getDefaultBranch} from './get-context'
 import inc from 'semver/functions/inc'
 
 export async function run(): Promise<void> {
@@ -12,7 +13,11 @@ export async function run(): Promise<void> {
 
     // Get owner and repo from context of payload that triggered the action
     const {owner: owner, repo: repo} = context.repo
-    const commitish = core.getInput('commitish', {required: false}) || 'main' //find default branch
+
+    //Find default branch
+    const defaultBranch = await getDefaultBranch(repoToken, owner, repo)
+
+    const commitish = core.getInput('commitish', {required: false}) || defaultBranch //find default branch
 
     //List most recent release
     const listReleaseResponse = await github.rest.repos.listReleases({

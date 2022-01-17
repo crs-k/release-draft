@@ -1,6 +1,81 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 3300:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDefaultBranch = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(5438);
+function getDefaultBranch(repoToken, owner, repo) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the default branch name');
+        const github = (0, github_1.getOctokit)(repoToken);
+        let result;
+        try {
+            // Get the default branch from the repo info
+            const response = yield github.rest.repos.get({ owner, repo });
+            result = response.data.default_branch;
+            assert.ok(result, 'default_branch cannot be empty');
+        }
+        catch (err) {
+            // Handle .wiki repo
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (((_a = err) === null || _a === void 0 ? void 0 : _a.status) === 404 && repo.toUpperCase().endsWith('.WIKI')) {
+                result = 'master';
+            }
+            // Otherwise error
+            else {
+                throw err;
+            }
+        }
+        // Print the default branch
+        core.info(`Default branch '${result}'`);
+        // Prefix with 'refs/heads'
+        if (!result.startsWith('refs/')) {
+            result = `refs/heads/${result}`;
+        }
+        return result;
+    });
+}
+exports.getDefaultBranch = getDefaultBranch;
+
+
+/***/ }),
+
 /***/ 2774:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -42,6 +117,7 @@ exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
+const get_context_1 = __nccwpck_require__(3300);
 const inc_1 = __importDefault(__nccwpck_require__(900));
 function run() {
     var _a, _b, _c;
@@ -53,7 +129,9 @@ function run() {
             const github = (0, github_1.getOctokit)(repoToken);
             // Get owner and repo from context of payload that triggered the action
             const { owner: owner, repo: repo } = github_1.context.repo;
-            const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
+            //Find default branch
+            const defaultBranch = yield (0, get_context_1.getDefaultBranch)(repoToken, owner, repo);
+            const commitish = core.getInput('commitish', { required: false }) || defaultBranch; //find default branch
             //List most recent release
             const listReleaseResponse = yield github.rest.repos.listReleases({
                 owner,
