@@ -35,7 +35,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDefaultBranch = void 0;
+exports.getRecentRelease = exports.getDefaultBranch = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
@@ -55,7 +55,7 @@ function getDefaultBranch(repoToken, owner, repo) {
             // Handle .wiki repo
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (((_a = err) === null || _a === void 0 ? void 0 : _a.status) === 404 && repo.toUpperCase().endsWith('.WIKI')) {
-                result = 'master';
+                result = 'main';
             }
             // Otherwise error
             else {
@@ -72,6 +72,42 @@ function getDefaultBranch(repoToken, owner, repo) {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
+function getRecentRelease(repoToken, owner, repo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the default branch name');
+        const github = (0, github_1.getOctokit)(repoToken);
+        let targetTag;
+        let prevDraft;
+        let prevReleaseId;
+        try {
+            // Get the default branch from the repo info
+            const response = yield github.rest.repos.listReleases({
+                owner,
+                repo,
+                per_page: 1,
+                page: 1
+            });
+            targetTag = response.data[0].tag_name;
+            prevDraft = response.data[0].draft;
+            prevReleaseId = response.data[0].id;
+            assert.ok(targetTag, 'tag_name cannot be empty');
+            assert.ok(prevDraft, 'prevDraft cannot be empty');
+            assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
+        }
+        catch (err) {
+            targetTag = '0.1.0';
+            prevDraft = false;
+            prevReleaseId = 0;
+        }
+        const data = [targetTag, prevDraft, prevReleaseId];
+        // Print the default branch
+        core.info(`tag_name '${targetTag}'`);
+        core.info(`tag_name '${prevDraft}'`);
+        core.info(`tag_name '${prevReleaseId}'`);
+        return data;
+    });
+}
+exports.getRecentRelease = getRecentRelease;
 
 
 /***/ }),
@@ -116,8 +152,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
-const clean_1 = __importDefault(__nccwpck_require__(8848));
 const get_context_1 = __nccwpck_require__(3300);
+const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
 function run() {
     var _a, _b, _c;
@@ -132,6 +168,8 @@ function run() {
             //Find default branch
             const defaultBranch = yield (0, get_context_1.getDefaultBranch)(repoToken, owner, repo);
             const commitish = core.getInput('commitish', { required: false }) || defaultBranch; //find default branch
+            const test = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
+            core.info(test.toString());
             //List most recent release
             const listReleaseResponse = yield github.rest.repos.listReleases({
                 owner,

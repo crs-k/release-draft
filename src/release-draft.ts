@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
+import {getDefaultBranch, getRecentRelease} from './get-context'
 import clean from 'semver/functions/clean'
-import {getDefaultBranch} from './get-context'
 import inc from 'semver/functions/inc'
 
 export async function run(): Promise<void> {
@@ -16,9 +16,10 @@ export async function run(): Promise<void> {
 
     //Find default branch
     const defaultBranch = await getDefaultBranch(repoToken, owner, repo)
-
     const commitish = core.getInput('commitish', {required: false}) || defaultBranch //find default branch
 
+    const test = await getRecentRelease(repoToken, owner, repo)
+    core.info(test.toString())
     //List most recent release
     const listReleaseResponse = await github.rest.repos.listReleases({
       owner,
