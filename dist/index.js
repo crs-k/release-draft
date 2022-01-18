@@ -97,7 +97,8 @@ function getRecentRelease() {
             assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
         }
         catch (err) {
-            core.info('Previous release cannot be found. Defaulting tag.');
+            if (err instanceof Error)
+                core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`);
             targetTag = '0.1.0';
             prevDraft = false;
             prevReleaseId = 0;
