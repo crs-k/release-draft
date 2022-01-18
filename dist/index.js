@@ -74,7 +74,7 @@ function getDefaultBranch(repoToken, owner, repo) {
 exports.getDefaultBranch = getDefaultBranch;
 function getRecentRelease(repoToken, owner, repo) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the default branch name');
+        core.info('Retrieving the most recent release');
         const github = (0, github_1.getOctokit)(repoToken);
         let targetTag;
         let prevDraft;
@@ -100,10 +100,10 @@ function getRecentRelease(repoToken, owner, repo) {
             prevReleaseId = 0;
         }
         const data = [targetTag, prevDraft, prevReleaseId];
-        // Print the default branch
+        // Print the previous release info
         core.info(`tag_name '${targetTag}'`);
-        core.info(`tag_name '${prevDraft}'`);
-        core.info(`tag_name '${prevReleaseId}'`);
+        core.info(`draft '${prevDraft}'`);
+        core.info(`id '${prevReleaseId}'`);
         return data;
     });
 }
@@ -156,7 +156,6 @@ const get_context_1 = __nccwpck_require__(3300);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
 function run() {
-    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get authenticated GitHub client
@@ -168,19 +167,9 @@ function run() {
             //Find default branch
             const defaultBranch = yield (0, get_context_1.getDefaultBranch)(repoToken, owner, repo);
             const commitish = core.getInput('commitish', { required: false }) || defaultBranch; //find default branch
-            const test = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
-            core.info(test.toString());
-            //List most recent release
-            const listReleaseResponse = yield github.rest.repos.listReleases({
-                owner,
-                repo,
-                per_page: 1,
-                page: 1
-            });
+            const listReleaseResponse = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
             //Check if release is a draft, assign tag, assign release id
-            const targetTag = (_a = listReleaseResponse.data[0].tag_name) !== null && _a !== void 0 ? _a : '0.1.0';
-            const prevDraft = (_b = listReleaseResponse.data[0].draft) !== null && _b !== void 0 ? _b : false;
-            const prevReleaseId = (_c = listReleaseResponse.data[0].id) !== null && _c !== void 0 ? _c : 0;
+            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = listReleaseResponse;
             core.info(`Targeted: ${targetTag}`);
             core.info(`Draft?: ${prevDraft}`);
             core.info(`Previous Release ID: ${prevReleaseId}`);

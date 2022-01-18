@@ -43,7 +43,7 @@ export async function getRecentRelease(
   owner: string,
   repo: string
 ): Promise<[string, boolean, number]> {
-  core.info('Retrieving the default branch name')
+  core.info('Retrieving the most recent release')
   const github = getOctokit(repoToken)
   let targetTag: string
   let prevDraft: boolean
@@ -67,11 +67,15 @@ export async function getRecentRelease(
     prevDraft = false
     prevReleaseId = 0
   }
-  const data: [string, boolean, number] = [targetTag, prevDraft, prevReleaseId]
-  // Print the default branch
+  const data: [tag: string, draft: boolean, release_id: number] = [
+    targetTag,
+    prevDraft,
+    prevReleaseId
+  ]
+  // Print the previous release info
   core.info(`tag_name '${targetTag}'`)
-  core.info(`tag_name '${prevDraft}'`)
-  core.info(`tag_name '${prevReleaseId}'`)
+  core.info(`draft '${prevDraft}'`)
+  core.info(`id '${prevReleaseId}'`)
 
   return data
 }
