@@ -5,7 +5,7 @@ inputs:
   repo-token:
     description: 'The GITHUB_TOKEN secret'
   commitish:
-    description: 'Release target. Default: repository's default branch.'
+    description: 'Release target. Default: `main` branch'
     required: false
   bump:
     description: 'NOT AVAILABLE. Semver bump type. Options: major, minor, patch, prerelease. Default: patch.'
