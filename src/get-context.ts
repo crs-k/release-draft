@@ -116,3 +116,55 @@ export async function generateUpdatedReleaseNotes(
 
   return data
 }
+
+export async function updateDraft(
+  repoToken: string,
+  owner: string,
+  repo: string,
+  targetTag: string,
+  updateName: string,
+  updateBody: string,
+  prevReleaseId: number
+): Promise<[number, string, string]> {
+  core.info('Retrieving the most recent release')
+  const github = getOctokit(repoToken)
+  let releaseId: number
+  let html_url: string
+  let upload_url: string
+  try {
+    // Get the default branch from the repo info
+    const response = await github.rest.repos.updateRelease({
+      owner,
+      repo,
+      release_id: prevReleaseId,
+      tag_name: targetTag,
+      name: updateName,
+      body: updateBody,
+      draft: true
+    })
+
+    releaseId = response.data.id
+    html_url = response.data.html_url
+    upload_url = response.data.upload_url
+    //id: releaseId, html_url: htmlUrl, upload_url: uploadUrl
+    assert.ok(releaseId, 'Release ID cannot be empty')
+    assert.ok(html_url, 'HTML URL cannot be empty')
+    assert.ok(upload_url, 'Upload URL cannot be empty')
+  } catch (err) {
+    if (err instanceof Error) core.setFailed(`Failed to update draft with reason ${err.message}`)
+    releaseId = 0
+    html_url = ''
+    upload_url = ''
+  }
+  const data: [id: number, html_url: string, upload_url: string] = [releaseId, html_url, upload_url]
+  // Print the previous release info & set output values
+  core.info(`Release ID: '${releaseId}'`)
+  core.info(`HTML URL: '${html_url}'`)
+  core.info(`Upload URL: '${upload_url}'`)
+
+  core.setOutput('id', releaseId)
+  core.setOutput('html_url', html_url)
+  core.setOutput('upload_url', upload_url)
+
+  return data
+}

@@ -35,7 +35,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.generateUpdatedReleaseNotes = exports.getRecentRelease = exports.getDefaultBranch = void 0;
+exports.updateDraft = exports.generateUpdatedReleaseNotes = exports.getRecentRelease = exports.getDefaultBranch = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
@@ -144,6 +144,51 @@ function generateUpdatedReleaseNotes(repoToken, owner, repo, targetTag) {
     });
 }
 exports.generateUpdatedReleaseNotes = generateUpdatedReleaseNotes;
+function updateDraft(repoToken, owner, repo, targetTag, updateName, updateBody, prevReleaseId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the most recent release');
+        const github = (0, github_1.getOctokit)(repoToken);
+        let releaseId;
+        let html_url;
+        let upload_url;
+        try {
+            // Get the default branch from the repo info
+            const response = yield github.rest.repos.updateRelease({
+                owner,
+                repo,
+                release_id: prevReleaseId,
+                tag_name: targetTag,
+                name: updateName,
+                body: updateBody,
+                draft: true
+            });
+            releaseId = response.data.id;
+            html_url = response.data.html_url;
+            upload_url = response.data.upload_url;
+            //id: releaseId, html_url: htmlUrl, upload_url: uploadUrl
+            assert.ok(releaseId, 'Release ID cannot be empty');
+            assert.ok(html_url, 'HTML URL cannot be empty');
+            assert.ok(upload_url, 'Upload URL cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.setFailed(`Failed to update draft with reason ${err.message}`);
+            releaseId = 0;
+            html_url = '';
+            upload_url = '';
+        }
+        const data = [releaseId, html_url, upload_url];
+        // Print the previous release info & set output values
+        core.info(`Release ID: '${releaseId}'`);
+        core.info(`HTML URL: '${html_url}'`);
+        core.info(`Upload URL: '${upload_url}'`);
+        core.setOutput('id', releaseId);
+        core.setOutput('html_url', html_url);
+        core.setOutput('upload_url', upload_url);
+        return data;
+    });
+}
+exports.updateDraft = updateDraft;
 
 
 /***/ }),
@@ -202,33 +247,17 @@ function run() {
             const { owner: owner, repo: repo } = github_1.context.repo;
             //Find default branch
             const defaultBranch = yield (0, get_context_1.getDefaultBranch)(repoToken, owner, repo);
-            const commitish = core.getInput('commitish', { required: false }) || defaultBranch; //find default branch
+            const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
             //Check if release is a draft, assign tag, assign release id
-            const listReleaseResponse = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
-            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = listReleaseResponse;
+            //const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
+            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {
                 //Generate release notes based on previous release id
-                const generateReleaseNotesResponse = yield (0, get_context_1.generateUpdatedReleaseNotes)(repoToken, owner, repo, targetTag);
-                //Assign output for use in release update
-                const { 0: updateName, 1: updateBody } = generateReleaseNotesResponse;
+                const { 0: updateName, 1: updateBody } = yield (0, get_context_1.generateUpdatedReleaseNotes)(repoToken, owner, repo, targetTag);
                 //Update existing draft
-                const updateReleaseResponse = yield github.rest.repos.updateRelease({
-                    owner,
-                    repo,
-                    release_id: prevReleaseId,
-                    tag_name: targetTag,
-                    name: updateName,
-                    body: updateBody,
-                    draft: true
-                });
-                // Get the ID, html_url, and upload URL for the created Release from the response
-                const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = updateReleaseResponse;
-                // Set output variables
-                core.setOutput('id', releaseId);
-                core.setOutput('html_url', htmlUrl);
-                core.setOutput('upload_url', uploadUrl);
+                yield (0, get_context_1.updateDraft)(repoToken, owner, repo, targetTag, updateName, updateBody, prevReleaseId);
             }
             else {
                 // Create a release
