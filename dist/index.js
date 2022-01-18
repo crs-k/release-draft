@@ -35,15 +35,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateDraft = exports.generateUpdatedReleaseNotes = exports.getRecentRelease = exports.getDefaultBranch = void 0;
+exports.createDraft = exports.updateDraft = exports.generateUpdatedReleaseNotes = exports.getRecentRelease = exports.getDefaultBranch = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
-function getDefaultBranch(repoToken, owner, repo) {
+const repoToken = core.getInput('repo-token', { required: true });
+core.setSecret(repoToken);
+const github = (0, github_1.getOctokit)(repoToken);
+const { owner: owner, repo: repo } = github_1.context.repo;
+function getDefaultBranch() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the default branch name');
-        const github = (0, github_1.getOctokit)(repoToken);
+        core.info('Retrieving the default branch name...');
         let result;
         try {
             // Get the default branch from the repo info
@@ -72,15 +75,14 @@ function getDefaultBranch(repoToken, owner, repo) {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
-function getRecentRelease(repoToken, owner, repo) {
+function getRecentRelease() {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the most recent release');
-        const github = (0, github_1.getOctokit)(repoToken);
+        core.info('Retrieving the most recent release...');
         let targetTag;
         let prevDraft;
         let prevReleaseId;
         try {
-            // Get the default branch from the repo info
+            // Get info from the most recent release
             const response = yield github.rest.repos.listReleases({
                 owner,
                 repo,
@@ -106,21 +108,20 @@ function getRecentRelease(repoToken, owner, repo) {
             prevReleaseId
         ];
         // Print the previous release info
-        core.info(`tag_name: '${targetTag}'`);
-        core.info(`draft: '${prevDraft}'`);
-        core.info(`release id: '${prevReleaseId}'`);
+        core.info(`Tag Name: '${targetTag}'`);
+        core.info(`Draft: '${prevDraft}'`);
+        core.info(`Release ID: '${prevReleaseId}'`);
         return data;
     });
 }
 exports.getRecentRelease = getRecentRelease;
-function generateUpdatedReleaseNotes(repoToken, owner, repo, targetTag) {
+function generateUpdatedReleaseNotes(targetTag) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the most recent release');
-        const github = (0, github_1.getOctokit)(repoToken);
+        core.info('Generating Release Notes...');
         let updateName;
         let updateBody;
         try {
-            // Get the default branch from the repo info
+            // Generate release notes
             const response = yield github.rest.repos.generateReleaseNotes({
                 owner,
                 repo,
@@ -132,27 +133,26 @@ function generateUpdatedReleaseNotes(repoToken, owner, repo, targetTag) {
             assert.ok(updateBody, 'body cannot be empty');
         }
         catch (err) {
-            core.info('Release Notes cannot be generated. Defaulting tag.');
+            core.info('Release Notes failed to generate.');
             updateName = 'Unnamed';
             updateBody = 'Unnamed';
         }
         const data = [updateName, updateBody];
-        // Print the previous release info
+        // Print release notes
         core.info(`Generated name: '${updateName}'`);
         core.info(`Generated body: '${updateBody}'`);
         return data;
     });
 }
 exports.generateUpdatedReleaseNotes = generateUpdatedReleaseNotes;
-function updateDraft(repoToken, owner, repo, targetTag, updateName, updateBody, prevReleaseId) {
+function updateDraft(targetTag, updateName, updateBody, prevReleaseId) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the most recent release');
-        const github = (0, github_1.getOctokit)(repoToken);
+        core.info('Updating Release Draft...');
         let releaseId;
         let html_url;
         let upload_url;
         try {
-            // Get the default branch from the repo info
+            // Update draft
             const response = yield github.rest.repos.updateRelease({
                 owner,
                 repo,
@@ -165,7 +165,6 @@ function updateDraft(repoToken, owner, repo, targetTag, updateName, updateBody, 
             releaseId = response.data.id;
             html_url = response.data.html_url;
             upload_url = response.data.upload_url;
-            //id: releaseId, html_url: htmlUrl, upload_url: uploadUrl
             assert.ok(releaseId, 'Release ID cannot be empty');
             assert.ok(html_url, 'HTML URL cannot be empty');
             assert.ok(upload_url, 'Upload URL cannot be empty');
@@ -189,6 +188,49 @@ function updateDraft(repoToken, owner, repo, targetTag, updateName, updateBody, 
     });
 }
 exports.updateDraft = updateDraft;
+function createDraft(nextTag, commitish) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Creating Release Draft...');
+        let releaseId;
+        let html_url;
+        let upload_url;
+        try {
+            // Create release draft
+            const response = yield github.rest.repos.createRelease({
+                owner,
+                repo,
+                tag_name: nextTag,
+                name: nextTag,
+                target_commitish: commitish,
+                draft: true,
+                generate_release_notes: true
+            });
+            releaseId = response.data.id;
+            html_url = response.data.html_url;
+            upload_url = response.data.upload_url;
+            assert.ok(releaseId, 'Release ID cannot be empty');
+            assert.ok(html_url, 'HTML URL cannot be empty');
+            assert.ok(upload_url, 'Upload URL cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.setFailed(`Failed to create draft with reason ${err.message}`);
+            releaseId = 0;
+            html_url = '';
+            upload_url = '';
+        }
+        const data = [releaseId, html_url, upload_url];
+        // Print the draft info & set output values
+        core.info(`Release ID: '${releaseId}'`);
+        core.info(`HTML URL: '${html_url}'`);
+        core.info(`Upload URL: '${upload_url}'`);
+        core.setOutput('id', releaseId);
+        core.setOutput('html_url', html_url);
+        core.setOutput('upload_url', upload_url);
+        return data;
+    });
+}
+exports.createDraft = createDraft;
 
 
 /***/ }),
@@ -232,32 +274,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const github_1 = __nccwpck_require__(5438);
 const get_context_1 = __nccwpck_require__(3300);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Get authenticated GitHub client
-            const repoToken = core.getInput('repo-token', { required: true });
-            core.setSecret(repoToken);
-            const github = (0, github_1.getOctokit)(repoToken);
+            /*     // Get authenticated GitHub client
+            const repoToken = core.getInput('repo-token', {required: true})
+            core.setSecret(repoToken)
+            const github = getOctokit(repoToken)
+        
             // Get owner and repo from context of payload that triggered the action
-            const { owner: owner, repo: repo } = github_1.context.repo;
+            const {owner: owner, repo: repo} = context.repo */
             //Find default branch
-            const defaultBranch = yield (0, get_context_1.getDefaultBranch)(repoToken, owner, repo);
+            const defaultBranch = yield (0, get_context_1.getDefaultBranch)();
             const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
             //Check if release is a draft, assign tag, assign release id
             //const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
-            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
+            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_context_1.getRecentRelease)();
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {
                 //Generate release notes based on previous release id
-                const { 0: updateName, 1: updateBody } = yield (0, get_context_1.generateUpdatedReleaseNotes)(repoToken, owner, repo, targetTag);
+                const { 0: updateName, 1: updateBody } = yield (0, get_context_1.generateUpdatedReleaseNotes)(targetTag);
                 //Update existing draft
-                yield (0, get_context_1.updateDraft)(repoToken, owner, repo, targetTag, updateName, updateBody, prevReleaseId);
+                yield (0, get_context_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
             }
             else {
                 // Create a release
@@ -266,21 +308,7 @@ function run() {
                 const bumpTag = (0, inc_1.default)(cleanTag, 'patch') || '0.1.0';
                 const nextTag = `v${bumpTag}`;
                 core.info(`Next tag: ${nextTag}`);
-                const createReleaseResponse = yield github.rest.repos.createRelease({
-                    owner,
-                    repo,
-                    tag_name: nextTag,
-                    name: nextTag,
-                    target_commitish: commitish,
-                    draft: true,
-                    generate_release_notes: true
-                });
-                // Get the ID, html_url, and upload URL for the created Release from the response
-                const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = createReleaseResponse;
-                // Set output variables
-                core.setOutput('id', releaseId);
-                core.setOutput('html_url', htmlUrl);
-                core.setOutput('upload_url', uploadUrl);
+                yield (0, get_context_1.createDraft)(nextTag, commitish);
             }
         }
         catch (error) {

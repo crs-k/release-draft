@@ -1,14 +1,14 @@
 import * as assert from 'assert'
 import * as core from '@actions/core'
-import {getOctokit} from '@actions/github'
+import {context, getOctokit} from '@actions/github'
 
-export async function getDefaultBranch(
-  repoToken: string,
-  owner: string,
-  repo: string
-): Promise<string> {
-  core.info('Retrieving the default branch name')
-  const github = getOctokit(repoToken)
+const repoToken = core.getInput('repo-token', {required: true})
+core.setSecret(repoToken)
+const github = getOctokit(repoToken)
+const {owner: owner, repo: repo} = context.repo
+
+export async function getDefaultBranch(): Promise<string> {
+  core.info('Retrieving the default branch name...')
   let result: string
   try {
     // Get the default branch from the repo info
@@ -38,18 +38,13 @@ export async function getDefaultBranch(
   return result
 }
 
-export async function getRecentRelease(
-  repoToken: string,
-  owner: string,
-  repo: string
-): Promise<[string, boolean, number]> {
-  core.info('Retrieving the most recent release')
-  const github = getOctokit(repoToken)
+export async function getRecentRelease(): Promise<[string, boolean, number]> {
+  core.info('Retrieving the most recent release...')
   let targetTag: string
   let prevDraft: boolean
   let prevReleaseId: number
   try {
-    // Get the default branch from the repo info
+    // Get info from the most recent release
     const response = await github.rest.repos.listReleases({
       owner,
       repo,
@@ -74,25 +69,19 @@ export async function getRecentRelease(
     prevReleaseId
   ]
   // Print the previous release info
-  core.info(`tag_name: '${targetTag}'`)
-  core.info(`draft: '${prevDraft}'`)
-  core.info(`release id: '${prevReleaseId}'`)
+  core.info(`Tag Name: '${targetTag}'`)
+  core.info(`Draft: '${prevDraft}'`)
+  core.info(`Release ID: '${prevReleaseId}'`)
 
   return data
 }
 
-export async function generateUpdatedReleaseNotes(
-  repoToken: string,
-  owner: string,
-  repo: string,
-  targetTag: string
-): Promise<[string, string]> {
-  core.info('Retrieving the most recent release')
-  const github = getOctokit(repoToken)
+export async function generateUpdatedReleaseNotes(targetTag: string): Promise<[string, string]> {
+  core.info('Generating Release Notes...')
   let updateName: string
   let updateBody: string
   try {
-    // Get the default branch from the repo info
+    // Generate release notes
     const response = await github.rest.repos.generateReleaseNotes({
       owner,
       repo,
@@ -105,12 +94,12 @@ export async function generateUpdatedReleaseNotes(
     assert.ok(updateName, 'name cannot be empty')
     assert.ok(updateBody, 'body cannot be empty')
   } catch (err) {
-    core.info('Release Notes cannot be generated. Defaulting tag.')
+    core.info('Release Notes failed to generate.')
     updateName = 'Unnamed'
     updateBody = 'Unnamed'
   }
   const data: [name: string, body: string] = [updateName, updateBody]
-  // Print the previous release info
+  // Print release notes
   core.info(`Generated name: '${updateName}'`)
   core.info(`Generated body: '${updateBody}'`)
 
@@ -118,21 +107,17 @@ export async function generateUpdatedReleaseNotes(
 }
 
 export async function updateDraft(
-  repoToken: string,
-  owner: string,
-  repo: string,
   targetTag: string,
   updateName: string,
   updateBody: string,
   prevReleaseId: number
 ): Promise<[number, string, string]> {
-  core.info('Retrieving the most recent release')
-  const github = getOctokit(repoToken)
+  core.info('Updating Release Draft...')
   let releaseId: number
   let html_url: string
   let upload_url: string
   try {
-    // Get the default branch from the repo info
+    // Update draft
     const response = await github.rest.repos.updateRelease({
       owner,
       repo,
@@ -146,7 +131,7 @@ export async function updateDraft(
     releaseId = response.data.id
     html_url = response.data.html_url
     upload_url = response.data.upload_url
-    //id: releaseId, html_url: htmlUrl, upload_url: uploadUrl
+
     assert.ok(releaseId, 'Release ID cannot be empty')
     assert.ok(html_url, 'HTML URL cannot be empty')
     assert.ok(upload_url, 'Upload URL cannot be empty')
@@ -158,6 +143,52 @@ export async function updateDraft(
   }
   const data: [id: number, html_url: string, upload_url: string] = [releaseId, html_url, upload_url]
   // Print the previous release info & set output values
+  core.info(`Release ID: '${releaseId}'`)
+  core.info(`HTML URL: '${html_url}'`)
+  core.info(`Upload URL: '${upload_url}'`)
+
+  core.setOutput('id', releaseId)
+  core.setOutput('html_url', html_url)
+  core.setOutput('upload_url', upload_url)
+
+  return data
+}
+
+export async function createDraft(
+  nextTag: string,
+  commitish: string
+): Promise<[number, string, string]> {
+  core.info('Creating Release Draft...')
+  let releaseId: number
+  let html_url: string
+  let upload_url: string
+  try {
+    // Create release draft
+    const response = await github.rest.repos.createRelease({
+      owner,
+      repo,
+      tag_name: nextTag,
+      name: nextTag,
+      target_commitish: commitish,
+      draft: true,
+      generate_release_notes: true
+    })
+
+    releaseId = response.data.id
+    html_url = response.data.html_url
+    upload_url = response.data.upload_url
+
+    assert.ok(releaseId, 'Release ID cannot be empty')
+    assert.ok(html_url, 'HTML URL cannot be empty')
+    assert.ok(upload_url, 'Upload URL cannot be empty')
+  } catch (err) {
+    if (err instanceof Error) core.setFailed(`Failed to create draft with reason ${err.message}`)
+    releaseId = 0
+    html_url = ''
+    upload_url = ''
+  }
+  const data: [id: number, html_url: string, upload_url: string] = [releaseId, html_url, upload_url]
+  // Print the draft info & set output values
   core.info(`Release ID: '${releaseId}'`)
   core.info(`HTML URL: '${html_url}'`)
   core.info(`Upload URL: '${upload_url}'`)
