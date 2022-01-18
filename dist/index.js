@@ -93,7 +93,6 @@ function getRecentRelease() {
             prevDraft = response.data[0].draft;
             prevReleaseId = response.data[0].id;
             assert.ok(targetTag, 'tag_name cannot be empty');
-            assert.ok(prevDraft, 'prevDraft cannot be empty');
             assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
         }
         catch (err) {
