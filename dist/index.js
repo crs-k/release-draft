@@ -188,13 +188,16 @@ function updateDraft(targetTag, updateName, updateBody, prevReleaseId) {
     });
 }
 exports.updateDraft = updateDraft;
-function createDraft(nextTag, commitish) {
+function createDraft(nextTag) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Creating Release Draft...');
         let releaseId;
         let html_url;
         let upload_url;
         try {
+            //Find default branch
+            const defaultBranch = yield getDefaultBranch();
+            const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
             // Create release draft
             const response = yield github.rest.repos.createRelease({
                 owner,
@@ -280,18 +283,7 @@ const inc_1 = __importDefault(__nccwpck_require__(900));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            /*     // Get authenticated GitHub client
-            const repoToken = core.getInput('repo-token', {required: true})
-            core.setSecret(repoToken)
-            const github = getOctokit(repoToken)
-        
-            // Get owner and repo from context of payload that triggered the action
-            const {owner: owner, repo: repo} = context.repo */
-            //Find default branch
-            const defaultBranch = yield (0, get_context_1.getDefaultBranch)();
-            const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
-            //Check if release is a draft, assign tag, assign release id
-            //const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
+            //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_context_1.getRecentRelease)();
             // Update Release
             //Check that a previous Release Draft exists
@@ -308,7 +300,7 @@ function run() {
                 const bumpTag = (0, inc_1.default)(cleanTag, 'patch') || '0.1.0';
                 const nextTag = `v${bumpTag}`;
                 core.info(`Next tag: ${nextTag}`);
-                yield (0, get_context_1.createDraft)(nextTag, commitish);
+                yield (0, get_context_1.createDraft)(nextTag);
             }
         }
         catch (error) {

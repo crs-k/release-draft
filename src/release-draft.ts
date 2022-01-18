@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import {
   createDraft,
   generateUpdatedReleaseNotes,
-  getDefaultBranch,
   getRecentRelease,
   updateDraft
 } from './get-context'
@@ -11,20 +10,7 @@ import inc from 'semver/functions/inc'
 
 export async function run(): Promise<void> {
   try {
-    /*     // Get authenticated GitHub client
-    const repoToken = core.getInput('repo-token', {required: true})
-    core.setSecret(repoToken)
-    const github = getOctokit(repoToken)
-
-    // Get owner and repo from context of payload that triggered the action
-    const {owner: owner, repo: repo} = context.repo */
-
-    //Find default branch
-    const defaultBranch = await getDefaultBranch()
-    const commitish = core.getInput('commitish', {required: false}) || defaultBranch
-
-    //Check if release is a draft, assign tag, assign release id
-    //const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
+    //Check for existence of release draft
     const {0: targetTag, 1: prevDraft, 2: prevReleaseId} = await getRecentRelease()
 
     // Update Release
@@ -44,7 +30,7 @@ export async function run(): Promise<void> {
 
       core.info(`Next tag: ${nextTag}`)
 
-      await createDraft(nextTag, commitish)
+      await createDraft(nextTag)
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(`Action failed with ${error.message}`)

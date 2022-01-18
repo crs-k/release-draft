@@ -154,15 +154,15 @@ export async function updateDraft(
   return data
 }
 
-export async function createDraft(
-  nextTag: string,
-  commitish: string
-): Promise<[number, string, string]> {
+export async function createDraft(nextTag: string): Promise<[number, string, string]> {
   core.info('Creating Release Draft...')
   let releaseId: number
   let html_url: string
   let upload_url: string
   try {
+    //Find default branch
+    const defaultBranch = await getDefaultBranch()
+    const commitish = core.getInput('commitish', {required: false}) || defaultBranch
     // Create release draft
     const response = await github.rest.repos.createRelease({
       owner,
