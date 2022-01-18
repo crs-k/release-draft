@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
-import {getDefaultBranch, getRecentRelease} from './get-context'
+import {generateUpdatedReleaseNotes, getDefaultBranch, getRecentRelease} from './get-context'
 import clean from 'semver/functions/clean'
 import inc from 'semver/functions/inc'
 
@@ -22,27 +22,19 @@ export async function run(): Promise<void> {
     const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
     const {0: targetTag, 1: prevDraft, 2: prevReleaseId} = listReleaseResponse
 
-    core.info(`Targeted: ${targetTag}`)
-    core.info(`Draft?: ${prevDraft}`)
-    core.info(`Previous Release ID: ${prevReleaseId}`)
-
     // Update Release
     //Check that a previous Release Draft exists
     if (prevDraft === true) {
       //Generate release notes based on previous release id
-      const generateReleaseNotesResponse = await github.rest.repos.generateReleaseNotes({
+      const generateReleaseNotesResponse = await generateUpdatedReleaseNotes(
+        repoToken,
         owner,
         repo,
-        tag_name: targetTag
-      })
+        targetTag
+      )
 
       //Assign output for use in release update
-      const {
-        data: {name: updateName, body: updateBody}
-      } = generateReleaseNotesResponse
-
-      core.info(`Generated Name: ${updateName}`)
-      core.info(`Generated Body: ${updateBody}`)
+      const {0: updateName, 1: updateBody} = generateReleaseNotesResponse
 
       //Update existing draft
       const updateReleaseResponse = await github.rest.repos.updateRelease({

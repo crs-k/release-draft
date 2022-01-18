@@ -28,7 +28,7 @@ export async function getDefaultBranch(
   }
 
   // Print the default branch
-  core.info(`Default branch '${result}'`)
+  core.info(`Default branch: '${result}'`)
 
   // Prefix with 'refs/heads'
   if (!result.startsWith('refs/')) {
@@ -74,9 +74,45 @@ export async function getRecentRelease(
     prevReleaseId
   ]
   // Print the previous release info
-  core.info(`tag_name '${targetTag}'`)
-  core.info(`draft '${prevDraft}'`)
-  core.info(`id '${prevReleaseId}'`)
+  core.info(`tag_name: '${targetTag}'`)
+  core.info(`draft: '${prevDraft}'`)
+  core.info(`release id: '${prevReleaseId}'`)
+
+  return data
+}
+
+export async function generateUpdatedReleaseNotes(
+  repoToken: string,
+  owner: string,
+  repo: string,
+  targetTag: string
+): Promise<[string, string]> {
+  core.info('Retrieving the most recent release')
+  const github = getOctokit(repoToken)
+  let updateName: string
+  let updateBody: string
+  try {
+    // Get the default branch from the repo info
+    const response = await github.rest.repos.generateReleaseNotes({
+      owner,
+      repo,
+      tag_name: targetTag
+    })
+
+    updateName = response.data.name
+    updateBody = response.data.body
+
+    assert.ok(updateName, 'name cannot be empty')
+    assert.ok(updateBody, 'body cannot be empty')
+  } catch (err) {
+    core.info('Release Notes cannot be generated. Defaulting tag.')
+    updateName = 'Unnamed'
+    updateBody = 'Unnamed'
+  }
+  const data: [name: string, body: string] = [updateName, updateBody]
+  // Print the previous release info
+  core.info(`Generated name: '${updateName}'`)
+  core.info(`Generated body: '${updateBody}'`)
 
   return data
 }

@@ -35,7 +35,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRecentRelease = exports.getDefaultBranch = void 0;
+exports.generateUpdatedReleaseNotes = exports.getRecentRelease = exports.getDefaultBranch = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
@@ -63,7 +63,7 @@ function getDefaultBranch(repoToken, owner, repo) {
             }
         }
         // Print the default branch
-        core.info(`Default branch '${result}'`);
+        core.info(`Default branch: '${result}'`);
         // Prefix with 'refs/heads'
         if (!result.startsWith('refs/')) {
             result = `refs/heads/${result}`;
@@ -106,13 +106,44 @@ function getRecentRelease(repoToken, owner, repo) {
             prevReleaseId
         ];
         // Print the previous release info
-        core.info(`tag_name '${targetTag}'`);
-        core.info(`draft '${prevDraft}'`);
-        core.info(`id '${prevReleaseId}'`);
+        core.info(`tag_name: '${targetTag}'`);
+        core.info(`draft: '${prevDraft}'`);
+        core.info(`release id: '${prevReleaseId}'`);
         return data;
     });
 }
 exports.getRecentRelease = getRecentRelease;
+function generateUpdatedReleaseNotes(repoToken, owner, repo, targetTag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the most recent release');
+        const github = (0, github_1.getOctokit)(repoToken);
+        let updateName;
+        let updateBody;
+        try {
+            // Get the default branch from the repo info
+            const response = yield github.rest.repos.generateReleaseNotes({
+                owner,
+                repo,
+                tag_name: targetTag
+            });
+            updateName = response.data.name;
+            updateBody = response.data.body;
+            assert.ok(updateName, 'name cannot be empty');
+            assert.ok(updateBody, 'body cannot be empty');
+        }
+        catch (err) {
+            core.info('Release Notes cannot be generated. Defaulting tag.');
+            updateName = 'Unnamed';
+            updateBody = 'Unnamed';
+        }
+        const data = [updateName, updateBody];
+        // Print the previous release info
+        core.info(`Generated name: '${updateName}'`);
+        core.info(`Generated body: '${updateBody}'`);
+        return data;
+    });
+}
+exports.generateUpdatedReleaseNotes = generateUpdatedReleaseNotes;
 
 
 /***/ }),
@@ -175,22 +206,13 @@ function run() {
             //Check if release is a draft, assign tag, assign release id
             const listReleaseResponse = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = listReleaseResponse;
-            core.info(`Targeted: ${targetTag}`);
-            core.info(`Draft?: ${prevDraft}`);
-            core.info(`Previous Release ID: ${prevReleaseId}`);
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {
                 //Generate release notes based on previous release id
-                const generateReleaseNotesResponse = yield github.rest.repos.generateReleaseNotes({
-                    owner,
-                    repo,
-                    tag_name: targetTag
-                });
+                const generateReleaseNotesResponse = yield (0, get_context_1.generateUpdatedReleaseNotes)(repoToken, owner, repo, targetTag);
                 //Assign output for use in release update
-                const { data: { name: updateName, body: updateBody } } = generateReleaseNotesResponse;
-                core.info(`Generated Name: ${updateName}`);
-                core.info(`Generated Body: ${updateBody}`);
+                const { 0: updateName, 1: updateBody } = generateReleaseNotesResponse;
                 //Update existing draft
                 const updateReleaseResponse = yield github.rest.repos.updateRelease({
                     owner,
