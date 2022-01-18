@@ -95,11 +95,16 @@ function getRecentRelease(repoToken, owner, repo) {
             assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
         }
         catch (err) {
+            core.info('Previous release cannot be found. Defaulting tag.');
             targetTag = '0.1.0';
             prevDraft = false;
             prevReleaseId = 0;
         }
-        const data = [targetTag, prevDraft, prevReleaseId];
+        const data = [
+            targetTag,
+            prevDraft,
+            prevReleaseId
+        ];
         // Print the previous release info
         core.info(`tag_name '${targetTag}'`);
         core.info(`draft '${prevDraft}'`);
@@ -167,8 +172,8 @@ function run() {
             //Find default branch
             const defaultBranch = yield (0, get_context_1.getDefaultBranch)(repoToken, owner, repo);
             const commitish = core.getInput('commitish', { required: false }) || defaultBranch; //find default branch
-            const listReleaseResponse = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
             //Check if release is a draft, assign tag, assign release id
+            const listReleaseResponse = yield (0, get_context_1.getRecentRelease)(repoToken, owner, repo);
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = listReleaseResponse;
             core.info(`Targeted: ${targetTag}`);
             core.info(`Draft?: ${prevDraft}`);

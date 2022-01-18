@@ -63,6 +63,7 @@ export async function getRecentRelease(
     assert.ok(prevDraft, 'prevDraft cannot be empty')
     assert.ok(prevReleaseId, 'prevReleaseId cannot be empty')
   } catch (err) {
+    core.info('Previous release cannot be found. Defaulting tag.')
     targetTag = '0.1.0'
     prevDraft = false
     prevReleaseId = 0

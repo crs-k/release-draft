@@ -18,9 +18,8 @@ export async function run(): Promise<void> {
     const defaultBranch = await getDefaultBranch(repoToken, owner, repo)
     const commitish = core.getInput('commitish', {required: false}) || defaultBranch //find default branch
 
-    const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
-
     //Check if release is a draft, assign tag, assign release id
+    const listReleaseResponse = await getRecentRelease(repoToken, owner, repo)
     const {0: targetTag, 1: prevDraft, 2: prevReleaseId} = listReleaseResponse
 
     core.info(`Targeted: ${targetTag}`)
