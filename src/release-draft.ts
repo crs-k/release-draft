@@ -1,9 +1,8 @@
 import * as core from '@actions/core'
-import clean from 'semver/functions/clean'
 import {createDraft} from './functions/create-draft'
+import {createNextTag} from './functions/create-next-tag'
 import {createNotes} from './functions/create-notes'
 import {getRecentRelease} from './functions/get-recent-release'
-import inc from 'semver/functions/inc'
 import {updateDraft} from './functions/update-draft'
 
 export async function run(): Promise<void> {
@@ -21,13 +20,8 @@ export async function run(): Promise<void> {
       await updateDraft(targetTag, updateName, updateBody, prevReleaseId)
     } else {
       // Create a release
-      //Clean and bump version
-      const cleanTag = clean(targetTag) || '0.1.0'
-      const bumpTag = inc(cleanTag, 'patch') || '0.1.0'
-      const nextTag = `v${bumpTag}`
 
-      core.info(`Next tag: ${nextTag}`)
-
+      const nextTag = await createNextTag(targetTag)
       await createDraft(nextTag)
     }
   } catch (error) {
