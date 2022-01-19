@@ -39,7 +39,7 @@ exports.createDraft = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
-const get_info_1 = __nccwpck_require__(230);
+const get_default_branch_1 = __nccwpck_require__(8662);
 function createDraft(nextTag) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Creating Release Draft...');
@@ -48,7 +48,7 @@ function createDraft(nextTag) {
         let upload_url;
         try {
             //Find default branch
-            const defaultBranch = yield (0, get_info_1.getDefaultBranch)();
+            const defaultBranch = yield (0, get_default_branch_1.getDefaultBranch)();
             const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
             // Create release draft
             const response = yield get_context_1.github.rest.repos.createRelease({
@@ -199,7 +199,7 @@ _a = github_1.context.repo, exports.owner = _a.owner, exports.repo = _a.repo;
 
 /***/ }),
 
-/***/ 230:
+/***/ 8662:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -269,6 +269,88 @@ function getDefaultBranch() {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
+function getRecentRelease() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the most recent release...');
+        let targetTag;
+        let prevDraft;
+        let prevReleaseId;
+        try {
+            // Get info from the most recent release
+            const response = yield get_context_1.github.rest.repos.listReleases({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
+                per_page: 1,
+                page: 1
+            });
+            targetTag = response.data[0].tag_name;
+            prevDraft = response.data[0].draft;
+            prevReleaseId = response.data[0].id;
+            assert.ok(targetTag, 'tag_name cannot be empty');
+            assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`);
+            targetTag = '0.1.0';
+            prevDraft = false;
+            prevReleaseId = 0;
+        }
+        const data = [
+            targetTag,
+            prevDraft,
+            prevReleaseId
+        ];
+        // Print the previous release info
+        core.info(`Tag Name: '${targetTag}'`);
+        core.info(`Draft: '${prevDraft}'`);
+        core.info(`Release ID: '${prevReleaseId}'`);
+        return data;
+    });
+}
+exports.getRecentRelease = getRecentRelease;
+
+
+/***/ }),
+
+/***/ 6407:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getRecentRelease = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
 function getRecentRelease() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Retrieving the most recent release...');
@@ -440,14 +522,14 @@ const core = __importStar(__nccwpck_require__(2186));
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const create_draft_1 = __nccwpck_require__(1536);
 const create_notes_1 = __nccwpck_require__(2565);
-const get_info_1 = __nccwpck_require__(230);
+const get_recent_release_1 = __nccwpck_require__(6407);
 const inc_1 = __importDefault(__nccwpck_require__(900));
 const update_draft_1 = __nccwpck_require__(4966);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             //Check for existence of release draft
-            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_info_1.getRecentRelease)();
+            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {

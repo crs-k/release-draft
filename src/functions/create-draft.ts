@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as core from '@actions/core'
 import {github, owner, repo} from './get-context'
-import {getDefaultBranch} from './get-info'
+import {getDefaultBranch} from './get-default-branch'
 
 export async function createDraft(nextTag: string): Promise<[number, string, string]> {
   core.info('Creating Release Draft...')

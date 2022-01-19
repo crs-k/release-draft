@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import clean from 'semver/functions/clean'
 import {createDraft} from './functions/create-draft'
 import {createNotes} from './functions/create-notes'
-import {getRecentRelease} from './functions/get-info'
+import {getRecentRelease} from './functions/get-recent-release'
 import inc from 'semver/functions/inc'
 import {updateDraft} from './functions/update-draft'
 
