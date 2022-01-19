@@ -19,9 +19,9 @@ Inputs are defined in [`action.yml`](action.yml):
 
 | Name | Description | Default |
 | - | - | - |
-| `repo-token` | Token to use to authorize label changes. Typically the GITHUB_TOKEN secret | N/A |
-| `commitish` | Release target. | repository's default branch. |
-| `bump` | Semver bump type. Options: major, minor, patch, premajor, preminor, prepatch, or prerelease. Only one version may be specified. | `patch`
+| `repo-token` | Token to use to authorize label changes. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
+| `commitish` | Target of release. | repository's default branch. |
+| `bump` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
 
 ### Outputs
 
