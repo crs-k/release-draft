@@ -17,11 +17,11 @@ Create a workflow `.yml` file in your repository's `.github/workflows` directory
 ### Inputs
 Inputs are defined in [`action.yml`](action.yml):
 
-| Name | Description | Default |
-| ---- | ----------- | ------- |
-| `repo-token` | Token to use to authorize label changes. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
-| `commitish` | Target of release. | Default branch. |
-| `bump` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
+| Name | Required | Description | Default |
+| ---- | -------- | ----------- | ------- |
+| `repo-token` | `Yes`| Token to use to authorize label changes. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
+| `commitish` | `No` | Target of release. | Default branch |
+| `bump` | `No` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
 
 ### Outputs
 Inputs are defined in [`action.yml`](action.yml):
