@@ -1,12 +1,10 @@
 import * as core from '@actions/core'
-import {
-  createDraft,
-  generateUpdatedReleaseNotes,
-  getRecentRelease,
-  updateDraft
-} from './get-context'
 import clean from 'semver/functions/clean'
+import {createDraft} from './functions/create-draft'
+import {createNotes} from './functions/create-notes'
+import {getRecentRelease} from './functions/get-info'
 import inc from 'semver/functions/inc'
+import {updateDraft} from './functions/update-draft'
 
 export async function run(): Promise<void> {
   try {
@@ -17,7 +15,7 @@ export async function run(): Promise<void> {
     //Check that a previous Release Draft exists
     if (prevDraft === true) {
       //Generate release notes based on previous release id
-      const {0: updateName, 1: updateBody} = await generateUpdatedReleaseNotes(targetTag)
+      const {0: updateName, 1: updateBody} = await createNotes(targetTag)
 
       //Update existing draft
       await updateDraft(targetTag, updateName, updateBody, prevReleaseId)
