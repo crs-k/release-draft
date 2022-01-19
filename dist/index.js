@@ -1,7 +1,96 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 2774:
+/***/ 1536:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createDraft = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+const get_default_branch_1 = __nccwpck_require__(8662);
+function createDraft(nextTag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Creating Release Draft...');
+        let releaseId;
+        let html_url;
+        let upload_url;
+        try {
+            //Find default branch
+            const defaultBranch = yield (0, get_default_branch_1.getDefaultBranch)();
+            const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
+            // Create release draft
+            const response = yield get_context_1.github.rest.repos.createRelease({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
+                tag_name: nextTag,
+                name: nextTag,
+                target_commitish: commitish,
+                draft: true,
+                generate_release_notes: true
+            });
+            releaseId = response.data.id;
+            html_url = response.data.html_url;
+            upload_url = response.data.upload_url;
+            assert.ok(releaseId, 'Release ID cannot be empty');
+            assert.ok(html_url, 'HTML URL cannot be empty');
+            assert.ok(upload_url, 'Upload URL cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.setFailed(`Failed to create draft with reason ${err.message}`);
+            releaseId = 0;
+            html_url = '';
+            upload_url = '';
+        }
+        const data = [releaseId, html_url, upload_url];
+        // Print the draft info & set output values
+        core.info(`Release ID: '${releaseId}'`);
+        core.info(`HTML URL: '${html_url}'`);
+        core.info(`Upload URL: '${upload_url}'`);
+        core.setOutput('id', releaseId);
+        core.setOutput('html_url', html_url);
+        core.setOutput('upload_url', upload_url);
+        return data;
+    });
+}
+exports.createDraft = createDraft;
+
+
+/***/ }),
+
+/***/ 5961:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -38,88 +127,511 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.createNextTag = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
-const github_1 = __nccwpck_require__(5438);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
-function run() {
-    var _a, _b, _c;
+const bump = core.getInput('bump', { required: false }) || 'patch';
+let releaseType;
+switch (bump) {
+    case 'major':
+        releaseType = 'major';
+        break;
+    case 'minor':
+        releaseType = 'minor';
+        break;
+    case 'patch':
+        releaseType = 'patch';
+        break;
+    case 'premajor':
+        releaseType = 'premajor';
+        break;
+    case 'preminor':
+        releaseType = 'preminor';
+        break;
+    case 'prepatch':
+        releaseType = 'prepatch';
+        break;
+    case 'prerelease':
+        releaseType = 'prerelease';
+        break;
+}
+function createNextTag(targetTag) {
     return __awaiter(this, void 0, void 0, function* () {
+        core.info('Generating Next tag...');
+        let nextTag;
         try {
-            // Get authenticated GitHub client
-            const repoToken = core.getInput('repo-token', { required: true });
-            core.setSecret(repoToken);
-            const github = (0, github_1.getOctokit)(repoToken);
-            // Get owner and repo from context of payload that triggered the action
-            const { owner: owner, repo: repo } = github_1.context.repo;
-            const commitish = core.getInput('commitish', { required: false }) || 'main'; //find default branch
-            //List most recent release
-            const listReleaseResponse = yield github.rest.repos.listReleases({
-                owner,
-                repo,
+            //Clean and bump version
+            const cleanTag = (0, clean_1.default)(targetTag) || '0.1.0';
+            const bumpTag = (0, inc_1.default)(cleanTag, releaseType) || '0.1.0';
+            nextTag = `v${bumpTag}`;
+            assert.ok(nextTag, 'next tag cannot be empty');
+        }
+        catch (err) {
+            core.info('Next tag failed to generate. Defaulting to v0.1.0');
+            nextTag = 'v0.1.0';
+        }
+        const data = nextTag;
+        // Next tag
+        core.info(`Bump Type: ${releaseType.toString()}`);
+        core.info(`Next tag: ${nextTag}`);
+        return data;
+    });
+}
+exports.createNextTag = createNextTag;
+
+
+/***/ }),
+
+/***/ 2565:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createNotes = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+function createNotes(targetTag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Generating Release Notes...');
+        let updateName;
+        let updateBody;
+        try {
+            // Generate release notes
+            const response = yield get_context_1.github.rest.repos.generateReleaseNotes({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
+                tag_name: targetTag
+            });
+            updateName = response.data.name;
+            updateBody = response.data.body;
+            assert.ok(updateName, 'name cannot be empty');
+            assert.ok(updateBody, 'body cannot be empty');
+        }
+        catch (err) {
+            core.info('Release Notes failed to generate.');
+            updateName = 'Unnamed';
+            updateBody = 'Unnamed';
+        }
+        const data = [updateName, updateBody];
+        // Print release notes
+        core.info(`Generated name: '${updateName}'`);
+        core.info(`Generated body: '${updateBody}'`);
+        return data;
+    });
+}
+exports.createNotes = createNotes;
+
+
+/***/ }),
+
+/***/ 7782:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.repo = exports.owner = exports.github = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(5438);
+const repoToken = core.getInput('repo-token', { required: true });
+core.setSecret(repoToken);
+exports.github = (0, github_1.getOctokit)(repoToken);
+_a = github_1.context.repo, exports.owner = _a.owner, exports.repo = _a.repo;
+
+
+/***/ }),
+
+/***/ 8662:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getRecentRelease = exports.getDefaultBranch = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+function getDefaultBranch() {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the default branch name...');
+        let result;
+        try {
+            // Get the default branch from the repo info
+            const response = yield get_context_1.github.rest.repos.get({ owner: get_context_1.owner, repo: get_context_1.repo });
+            result = response.data.default_branch;
+            assert.ok(result, 'default_branch cannot be empty');
+        }
+        catch (err) {
+            // Handle .wiki repo
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (((_a = err) === null || _a === void 0 ? void 0 : _a.status) === 404 && get_context_1.repo.toUpperCase().endsWith('.WIKI')) {
+                result = 'main';
+            }
+            // Otherwise error
+            else {
+                throw err;
+            }
+        }
+        // Print the default branch
+        core.info(`Default branch: '${result}'`);
+        // Prefix with 'refs/heads'
+        if (!result.startsWith('refs/')) {
+            result = `refs/heads/${result}`;
+        }
+        return result;
+    });
+}
+exports.getDefaultBranch = getDefaultBranch;
+function getRecentRelease() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the most recent release...');
+        let targetTag;
+        let prevDraft;
+        let prevReleaseId;
+        try {
+            // Get info from the most recent release
+            const response = yield get_context_1.github.rest.repos.listReleases({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
                 per_page: 1,
                 page: 1
             });
-            //Check if release is a draft, assign tag, assign release id
-            const targetTag = (_a = listReleaseResponse.data[0].tag_name) !== null && _a !== void 0 ? _a : '0.1.0';
-            const prevDraft = (_b = listReleaseResponse.data[0].draft) !== null && _b !== void 0 ? _b : false;
-            const prevReleaseId = (_c = listReleaseResponse.data[0].id) !== null && _c !== void 0 ? _c : 0;
-            core.info(`Targeted: ${targetTag}`);
-            core.info(`Draft?: ${prevDraft}`);
-            core.info(`Previous Release ID: ${prevReleaseId}`);
+            targetTag = response.data[0].tag_name;
+            prevDraft = response.data[0].draft;
+            prevReleaseId = response.data[0].id;
+            assert.ok(targetTag, 'tag_name cannot be empty');
+            assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`);
+            targetTag = '0.1.0';
+            prevDraft = false;
+            prevReleaseId = 0;
+        }
+        const data = [
+            targetTag,
+            prevDraft,
+            prevReleaseId
+        ];
+        // Print the previous release info
+        core.info(`Tag Name: '${targetTag}'`);
+        core.info(`Draft: '${prevDraft}'`);
+        core.info(`Release ID: '${prevReleaseId}'`);
+        return data;
+    });
+}
+exports.getRecentRelease = getRecentRelease;
+
+
+/***/ }),
+
+/***/ 6407:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getRecentRelease = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+function getRecentRelease() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Retrieving the most recent release...');
+        let targetTag;
+        let prevDraft;
+        let prevReleaseId;
+        try {
+            // Get info from the most recent release
+            const response = yield get_context_1.github.rest.repos.listReleases({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
+                per_page: 1,
+                page: 1
+            });
+            targetTag = response.data[0].tag_name;
+            prevDraft = response.data[0].draft;
+            prevReleaseId = response.data[0].id;
+            assert.ok(targetTag, 'tag_name cannot be empty');
+            assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`);
+            targetTag = '0.1.0';
+            prevDraft = false;
+            prevReleaseId = 0;
+        }
+        const data = [
+            targetTag,
+            prevDraft,
+            prevReleaseId
+        ];
+        // Print the previous release info
+        core.info(`Tag Name: '${targetTag}'`);
+        core.info(`Draft: '${prevDraft}'`);
+        core.info(`Release ID: '${prevReleaseId}'`);
+        return data;
+    });
+}
+exports.getRecentRelease = getRecentRelease;
+
+
+/***/ }),
+
+/***/ 4966:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.updateDraft = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+function updateDraft(targetTag, updateName, updateBody, prevReleaseId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.info('Updating Release Draft...');
+        let releaseId;
+        let html_url;
+        let upload_url;
+        try {
+            // Update draft
+            const response = yield get_context_1.github.rest.repos.updateRelease({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
+                release_id: prevReleaseId,
+                tag_name: targetTag,
+                name: updateName,
+                body: updateBody,
+                draft: true
+            });
+            releaseId = response.data.id;
+            html_url = response.data.html_url;
+            upload_url = response.data.upload_url;
+            assert.ok(releaseId, 'Release ID cannot be empty');
+            assert.ok(html_url, 'HTML URL cannot be empty');
+            assert.ok(upload_url, 'Upload URL cannot be empty');
+        }
+        catch (err) {
+            if (err instanceof Error)
+                core.setFailed(`Failed to update draft with reason ${err.message}`);
+            releaseId = 0;
+            html_url = '';
+            upload_url = '';
+        }
+        const data = [releaseId, html_url, upload_url];
+        // Print the previous release info & set output values
+        core.info(`Release ID: '${releaseId}'`);
+        core.info(`HTML URL: '${html_url}'`);
+        core.info(`Upload URL: '${upload_url}'`);
+        core.setOutput('id', releaseId);
+        core.setOutput('html_url', html_url);
+        core.setOutput('upload_url', upload_url);
+        return data;
+    });
+}
+exports.updateDraft = updateDraft;
+
+
+/***/ }),
+
+/***/ 2774:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const create_draft_1 = __nccwpck_require__(1536);
+const create_next_tag_1 = __nccwpck_require__(5961);
+const create_notes_1 = __nccwpck_require__(2565);
+const get_recent_release_1 = __nccwpck_require__(6407);
+const update_draft_1 = __nccwpck_require__(4966);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            //Check for existence of release draft
+            const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
             // Update Release
             //Check that a previous Release Draft exists
             if (prevDraft === true) {
                 //Generate release notes based on previous release id
-                const generateReleaseNotesResponse = yield github.rest.repos.generateReleaseNotes({
-                    owner,
-                    repo,
-                    tag_name: targetTag
-                });
-                //Assign output for use in release update
-                const { data: { name: updateName, body: updateBody } } = generateReleaseNotesResponse;
-                core.info(`Generated Name: ${updateName}`);
-                core.info(`Generated Body: ${updateBody}`);
+                const { 0: updateName, 1: updateBody } = yield (0, create_notes_1.createNotes)(targetTag);
                 //Update existing draft
-                const updateReleaseResponse = yield github.rest.repos.updateRelease({
-                    owner,
-                    repo,
-                    release_id: prevReleaseId,
-                    tag_name: targetTag,
-                    name: updateName,
-                    body: updateBody,
-                    draft: true
-                });
-                // Get the ID, html_url, and upload URL for the created Release from the response
-                const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = updateReleaseResponse;
-                // Set output variables
-                core.setOutput('id', releaseId);
-                core.setOutput('html_url', htmlUrl);
-                core.setOutput('upload_url', uploadUrl);
+                yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
             }
             else {
                 // Create a release
-                //Clean and bump version
-                const cleanTag = (0, clean_1.default)(targetTag) || '0.1.0';
-                const bumpTag = (0, inc_1.default)(cleanTag, 'patch') || '0.1.0';
-                const nextTag = `v${bumpTag}`;
-                core.info(`Next tag: ${nextTag}`);
-                const createReleaseResponse = yield github.rest.repos.createRelease({
-                    owner,
-                    repo,
-                    tag_name: nextTag,
-                    name: nextTag,
-                    target_commitish: commitish,
-                    draft: true,
-                    generate_release_notes: true
-                });
-                // Get the ID, html_url, and upload URL for the created Release from the response
-                const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = createReleaseResponse;
-                // Set output variables
-                core.setOutput('id', releaseId);
-                core.setOutput('html_url', htmlUrl);
-                core.setOutput('upload_url', uploadUrl);
+                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag);
+                yield (0, create_draft_1.createDraft)(nextTag);
             }
         }
         catch (error) {
