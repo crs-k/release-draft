@@ -18,7 +18,7 @@ Create a workflow `.yml` file in your repository's `.github/workflows` directory
 Inputs are defined in [`action.yml`](action.yml):
 
 | Name | Description | Default |
-| - | - | - |
+| ---- | ----------- | ------- |
 | `repo-token` | Token to use to authorize label changes. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
 | `commitish` | Target of release. | repository's default branch. |
 | `bump` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
@@ -32,6 +32,8 @@ Inputs are defined in [`action.yml`](action.yml):
 ### Example workflow
 
 ```yaml
+# .github/workflows/release-draft.yml
+
 name: Release Draft
 
 on:
@@ -64,19 +66,25 @@ More info [here](https://docs.github.com/en/repositories/releasing-projects-on-g
 changelog:
   exclude:
     labels:
-      - ignore-for-release
-    authors:
-      - octocat
+      - "ignore for release ✂️"
   categories:
-    - title: Breaking Changes 🛠
-      labels:
-        - Semver-Major
-        - breaking-change
-    - title: Exciting New Features 🎉
-      labels:
-        - Semver-Minor
-        - enhancement
-    - title: Other Changes
-      labels:
-        - "*"
+  - title: ☄️ Breaking Changes
+    labels:
+      - "breaking change ☄️"
+  - title: 🎉 New Features 
+    labels:
+      - "enhancement 💎"
+  - title: 🐛 Bug Fixes
+    labels:
+      - "bug 🐛"
+  - title: 🧰 Maintenance
+    labels: 
+      - "chore 🧹"
+      - "dependencies 🛠"
+  - title: 📓 Documentation
+    labels: 
+      - "documentation 📓"
+  - title: 🃏 Miscellaneous
+    labels:
+      - "*"
 ```
