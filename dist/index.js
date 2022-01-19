@@ -621,15 +621,14 @@ function run() {
             //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
             // Update Release
-            //Check that a previous Release Draft exists
             if (prevDraft === true) {
-                //Generate release notes based on previous release id
+                //Generate release notes
                 const { 0: updateName, 1: updateBody } = yield (0, create_notes_1.createNotes)(targetTag);
                 //Update existing draft
                 yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
             }
             else {
-                // Create a release
+                // Create a new draft
                 const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag);
                 yield (0, create_draft_1.createDraft)(nextTag);
             }
