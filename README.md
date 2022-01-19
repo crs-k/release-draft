@@ -20,7 +20,7 @@ Inputs are defined in [`action.yml`](action.yml):
 | Name | Description | Default |
 | ---- | ----------- | ------- |
 | `repo-token` | Token to use to authorize label changes. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
-| `commitish` | Target of release. | repository's default branch. |
+| `commitish` | Target of release. | Default branch. |
 | `bump` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
 
 ### Outputs
@@ -28,6 +28,11 @@ Inputs are defined in [`action.yml`](action.yml):
 * `id` - The ID of the created Release.
 * `html_url` - The URL users can navigate to in order to view the release.
 * `upload_url` - The URL for uploading assets to the release.
+| Name | Description |
+| ---- | ----------- |
+| `id` | The ID of the created Release. |
+| `html_url` | The URL users can navigate to in order to view the release. |
+| `upload_url` | The URL for uploading assets to the release. |
 
 ### Example workflow
 
