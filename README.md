@@ -7,7 +7,7 @@
 
 This Action automatically creates and/or updates release drafts.
 * Generates & updates release notes using GitHub's Auto-generate release notes functionality. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes).
-* Draft tag defaults to previous semver compliant tag +1 patch.
+* Draft tag defaults to previous semver compliant tag +1 patch. See inputs for more info.
 
 ## Usage
 
@@ -15,10 +15,13 @@ This Action automatically creates and/or updates release drafts.
 Create a workflow `.yml` file in your repository's `.github/workflows` directory. An [example workflow](#example-workflow) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
 
 ### Inputs
+Inputs are defined in [`action.yml`](action.yml):
 
-* `repo-token` - The GITHUB_TOKEN secret. 
-* `commitish` - Release target. Default: `main` branch.
-* `bump` - NOT AVAILABLE. Semver bump type. Options: major, minor, patch, prerelease. Default: patch.
+| Name | Description | Default |
+| - | - | - |
+| `repo-token` | Token to use to authorize label changes. Typically the GITHUB_TOKEN secret | N/A |
+| `commitish` | Release target. | repository's default branch. |
+| `bump` | Semver bump type. Options: major, minor, patch, premajor, preminor, prepatch, or prerelease. Only one version may be specified. | `patch`
 
 ### Outputs
 
