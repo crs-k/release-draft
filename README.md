@@ -6,7 +6,7 @@
 # Release Draft Create & Update
 
 This Action automatically creates and/or updates release drafts.
-* Generates & updates release notes. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes).
+* Generates & updates release notes using GitHub's Auto-generate release notes functionality. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes).
 * Draft tag defaults to previous semver compliant tag +1 patch.
 
 ## Usage
@@ -36,7 +36,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  pull_request_target:
     branches:
       - main
   release:
@@ -51,4 +51,29 @@ jobs:
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
 ```
+#### Example Release Note Configuration
 
+More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes#configuring-automatically-generated-release-notes).
+
+```yaml
+# .github/release.yml
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - octocat
+  categories:
+    - title: Breaking Changes 🛠
+      labels:
+        - Semver-Major
+        - breaking-change
+    - title: Exciting New Features 🎉
+      labels:
+        - Semver-Minor
+        - enhancement
+    - title: Other Changes
+      labels:
+        - "*"
+```
