@@ -36,7 +36,6 @@ export async function createNextTag(targetTag: string): Promise<string> {
   let nextTag: string
 
   try {
-    releaseType = 'patch'
     //Clean and bump version
     const cleanTag = clean(targetTag) || '0.1.0'
     const bumpTag = inc(cleanTag, releaseType) || '0.1.0'
@@ -49,6 +48,7 @@ export async function createNextTag(targetTag: string): Promise<string> {
   }
   const data = nextTag
   // Next tag
+  core.info(`Bump Type: ${releaseType.toString()}`)
   core.info(`Next tag: ${nextTag}`)
 
   return data

@@ -162,7 +162,6 @@ function createNextTag(targetTag) {
         core.info('Generating Next tag...');
         let nextTag;
         try {
-            releaseType = 'patch';
             //Clean and bump version
             const cleanTag = (0, clean_1.default)(targetTag) || '0.1.0';
             const bumpTag = (0, inc_1.default)(cleanTag, releaseType) || '0.1.0';
@@ -175,6 +174,7 @@ function createNextTag(targetTag) {
         }
         const data = nextTag;
         // Next tag
+        core.info(`Bump Type: ${releaseType.toString()}`);
         core.info(`Next tag: ${nextTag}`);
         return data;
     });
