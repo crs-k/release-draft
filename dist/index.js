@@ -327,7 +327,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRecentRelease = exports.getDefaultBranch = void 0;
+exports.getDefaultBranch = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
@@ -350,7 +350,9 @@ function getDefaultBranch() {
             }
             // Otherwise error
             else {
-                throw err;
+                if (err instanceof Error)
+                    core.setFailed(`Failed to update draft with reason ${err.message}`);
+                result = '';
             }
         }
         // Print the default branch
@@ -363,46 +365,6 @@ function getDefaultBranch() {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
-function getRecentRelease() {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the most recent release...');
-        let targetTag;
-        let prevDraft;
-        let prevReleaseId;
-        try {
-            // Get info from the most recent release
-            const response = yield get_context_1.github.rest.repos.listReleases({
-                owner: get_context_1.owner,
-                repo: get_context_1.repo,
-                per_page: 1,
-                page: 1
-            });
-            targetTag = response.data[0].tag_name;
-            prevDraft = response.data[0].draft;
-            prevReleaseId = response.data[0].id;
-            assert.ok(targetTag, 'tag_name cannot be empty');
-            assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
-        }
-        catch (err) {
-            if (err instanceof Error)
-                core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`);
-            targetTag = '0.1.0';
-            prevDraft = false;
-            prevReleaseId = 0;
-        }
-        const data = [
-            targetTag,
-            prevDraft,
-            prevReleaseId
-        ];
-        // Print the previous release info
-        core.info(`Tag Name: '${targetTag}'`);
-        core.info(`Draft: '${prevDraft}'`);
-        core.info(`Release ID: '${prevReleaseId}'`);
-        return data;
-    });
-}
-exports.getRecentRelease = getRecentRelease;
 
 
 /***/ }),
