@@ -3,7 +3,7 @@
   <a href="https://github.com/crs-k/release-draft/actions"><img alt="ci status" src="https://github.com/crs-k/release-draft/actions/workflows/codeql-analysis.yml/badge.svg"></a>
 </p>
 
-# Release Draft Create & Update
+# Release Draft
 
 This Action automatically creates and/or updates release drafts.
 * Generates & updates release notes using GitHub's Auto-generate release notes functionality. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes).
