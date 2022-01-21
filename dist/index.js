@@ -130,7 +130,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createNextTag = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
-const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
 const bump = core.getInput('bump', { required: false }) || 'patch';
 let releaseType;
@@ -160,13 +159,12 @@ switch (bump) {
 function createNextTag(targetTag) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Generating Next tag...');
-        let nextTag;
+        let nextTag = targetTag;
         try {
-            //Clean and bump version
-            const cleanTag = (0, clean_1.default)(targetTag) || '0.1.0';
-            const bumpTag = (0, inc_1.default)(cleanTag, releaseType) || '0.1.0';
+            //bump version
+            const bumpTag = (0, inc_1.default)(nextTag, releaseType);
             nextTag = `v${bumpTag}`;
-            assert.ok(nextTag, 'next tag cannot be empty');
+            assert.ok(bumpTag, 'next tag cannot be empty');
         }
         catch (err) {
             core.info('Next tag failed to generate. Defaulting to v0.1.0');
@@ -8826,19 +8824,6 @@ module.exports = SemVer
 
 /***/ }),
 
-/***/ 8848:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const parse = __nccwpck_require__(5925)
-const clean = (version, options) => {
-  const s = parse(version.trim().replace(/^[=v]+/, ''), options)
-  return s ? s.version : null
-}
-module.exports = clean
-
-
-/***/ }),
-
 /***/ 900:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -8857,46 +8842,6 @@ const inc = (version, release, options, identifier) => {
   }
 }
 module.exports = inc
-
-
-/***/ }),
-
-/***/ 5925:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const {MAX_LENGTH} = __nccwpck_require__(2293)
-const { re, t } = __nccwpck_require__(9523)
-const SemVer = __nccwpck_require__(8088)
-
-const parseOptions = __nccwpck_require__(785)
-const parse = (version, options) => {
-  options = parseOptions(options)
-
-  if (version instanceof SemVer) {
-    return version
-  }
-
-  if (typeof version !== 'string') {
-    return null
-  }
-
-  if (version.length > MAX_LENGTH) {
-    return null
-  }
-
-  const r = options.loose ? re[t.LOOSE] : re[t.FULL]
-  if (!r.test(version)) {
-    return null
-  }
-
-  try {
-    return new SemVer(version, options)
-  } catch (er) {
-    return null
-  }
-}
-
-module.exports = parse
 
 
 /***/ }),

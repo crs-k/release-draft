@@ -1,6 +1,4 @@
 jest.mock('@actions/core')
-jest.mock('@actions/github')
-jest.mock('assert')
 jest.mock('../../src/functions/get-default-branch')
 
 const core = require('@actions/core')
@@ -12,9 +10,6 @@ let targetTag = 'v1.0.0'
 let commitish = 'main'
 
 describe('Create Draft Function', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
   test('createRelease endpoint is called', async () => {
     await createDraft(targetTag)
 
