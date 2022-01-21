@@ -357,10 +357,6 @@ function getDefaultBranch() {
         }
         // Print the default branch
         core.info(`Default branch: '${result}'`);
-        // Prefix with 'refs/heads'
-        if (!result.startsWith('refs/')) {
-            result = `refs/heads/${result}`;
-        }
         return result;
     });
 }
