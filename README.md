@@ -7,7 +7,8 @@
 
 This Action automatically creates and/or updates release drafts.
 * Generates & updates release notes using GitHub's Auto-generate release notes functionality. More info [here](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes).
-* Draft tag defaults to previous semver compliant tag +1 patch. See inputs for more info.
+* Draft tag defaults to previous tag +1 patch version. See [inputs](https://github.com/crs-k/release-draft#inputs) for more info.
+* See [example workflow](https://github.com/crs-k/release-draft#example-workflow).
 
 ## Usage
 
@@ -32,7 +33,7 @@ Inputs are defined in [`action.yml`](action.yml):
 | `html_url` | The URL users can navigate to in order to view the release. |
 | `upload_url` | The URL for uploading assets to the release. |
 
-### Example workflow
+## Example workflow
 
 ```yaml
 # .github/workflows/release-draft.yml
@@ -91,3 +92,6 @@ changelog:
     labels:
       - "*"
 ```
+
+## Contributing
+Contributions are welcomed. Please read the [contributing](https://github.com/crs-k/release-draft/blob/main/CONTRIBUTING.md).
