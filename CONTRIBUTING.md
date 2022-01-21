@@ -20,17 +20,11 @@ Pull requests are the best way to propose changes. To submit a change:
 ## Any contributions you make will be under the MIT Software License
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](https://github.com/crs-k/release-draft/blob/main/LICENSE) that covers the project.
 
-## Report bugs using Github's [issues](https://github.com/crs-k/release-draft/issues)
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/crs-k/release-draft/issues/new).
+## Report bugs using Github's [issues](https://github.com/crs-k/release-draft/issues/new?assignees=&labels=bug+%F0%9F%90%9B&template=bug_report.md&title=%5BBUG%5D)
+We use GitHub issues to track public bugs. Report a bug by [using this template](https://github.com/crs-k/release-draft/issues/new?assignees=&labels=bug+%F0%9F%90%9B&template=bug_report.md&title=%5BBUG%5D).
 
-## Write bug reports with detail, background, and sample code
-Please provide the following:
-
-- A quick summary and/or background
-- Steps to reproduce
-- What you expected would happen
-- What actually happens
-- Notes
+## Suggest enhancements using Github's [issues](https://github.com/crs-k/release-draft/issues/new?assignees=&labels=enhancement+%F0%9F%92%8E&template=feature_request.md&title=%5BFEATURE%5D)
+We use GitHub issues to track feature requests. Suggest an enhancement by [using this template](https://github.com/crs-k/release-draft/issues/new?assignees=&labels=enhancement+%F0%9F%92%8E&template=feature_request.md&title=%5BFEATURE%5D).
 
 ## Use a Consistent Coding Style
 The project's linter & formatting will be run on all PRs.
