@@ -1,6 +1,7 @@
 import * as assert from 'assert'
 import * as core from '@actions/core'
 import {ReleaseType} from 'semver'
+import clean from 'semver/functions/clean'
 import inc from 'semver/functions/inc'
 
 const bump = core.getInput('bump', {required: false}) || 'patch'
@@ -32,11 +33,12 @@ switch (bump) {
 
 export async function createNextTag(targetTag: string): Promise<string> {
   core.info('Generating Next tag...')
-  let nextTag = targetTag
+  let nextTag: string
 
   try {
     //bump version
-    const bumpTag = inc(nextTag, releaseType)
+    const cleanTag = clean(targetTag) || ''
+    const bumpTag = inc(cleanTag, releaseType)
 
     nextTag = `v${bumpTag}`
 
