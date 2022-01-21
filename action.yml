@@ -5,14 +5,14 @@ inputs:
   repo-token:
     description: 'The GITHUB_TOKEN secret'
   commitish:
-    description: 'Release target. Default: repo default branch'
+    description: 'Target of release. Default: default branch'
     required: false
   bump:
     description: 'Semver bump type. Options: major, minor, patch, premajor, preminor, prepatch, or prerelease.  Default level is patch. Only one version may be specified.'
     required: false
 outputs:
   id:
-    description: 'The ID of the created Release'
+    description: 'The ID of the Release'
   html_url:
     description: 'The URL users can navigate to in order to view the release'
   upload_url:

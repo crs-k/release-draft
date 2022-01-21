@@ -32,6 +32,7 @@ export async function createDraft(nextTag: string): Promise<[number, string, str
     assert.ok(upload_url, 'Upload URL cannot be empty')
   } catch (err) {
     if (err instanceof Error) core.setFailed(`Failed to create draft with reason ${err.message}`)
+
     releaseId = 0
     html_url = ''
     upload_url = ''

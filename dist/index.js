@@ -130,7 +130,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createNextTag = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
-const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
 const bump = core.getInput('bump', { required: false }) || 'patch';
 let releaseType;
@@ -160,13 +159,12 @@ switch (bump) {
 function createNextTag(targetTag) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Generating Next tag...');
-        let nextTag;
+        let nextTag = targetTag;
         try {
-            //Clean and bump version
-            const cleanTag = (0, clean_1.default)(targetTag) || '0.1.0';
-            const bumpTag = (0, inc_1.default)(cleanTag, releaseType) || '0.1.0';
+            //bump version
+            const bumpTag = (0, inc_1.default)(nextTag, releaseType);
             nextTag = `v${bumpTag}`;
-            assert.ok(nextTag, 'next tag cannot be empty');
+            assert.ok(bumpTag, 'next tag cannot be empty');
         }
         catch (err) {
             core.info('Next tag failed to generate. Defaulting to v0.1.0');
@@ -327,7 +325,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRecentRelease = exports.getDefaultBranch = void 0;
+exports.getDefaultBranch = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
@@ -350,7 +348,9 @@ function getDefaultBranch() {
             }
             // Otherwise error
             else {
-                throw err;
+                if (err instanceof Error)
+                    core.setFailed(`Failed to update draft with reason ${err.message}`);
+                result = '';
             }
         }
         // Print the default branch
@@ -363,46 +363,6 @@ function getDefaultBranch() {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
-function getRecentRelease() {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.info('Retrieving the most recent release...');
-        let targetTag;
-        let prevDraft;
-        let prevReleaseId;
-        try {
-            // Get info from the most recent release
-            const response = yield get_context_1.github.rest.repos.listReleases({
-                owner: get_context_1.owner,
-                repo: get_context_1.repo,
-                per_page: 1,
-                page: 1
-            });
-            targetTag = response.data[0].tag_name;
-            prevDraft = response.data[0].draft;
-            prevReleaseId = response.data[0].id;
-            assert.ok(targetTag, 'tag_name cannot be empty');
-            assert.ok(prevReleaseId, 'prevReleaseId cannot be empty');
-        }
-        catch (err) {
-            if (err instanceof Error)
-                core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`);
-            targetTag = '0.1.0';
-            prevDraft = false;
-            prevReleaseId = 0;
-        }
-        const data = [
-            targetTag,
-            prevDraft,
-            prevReleaseId
-        ];
-        // Print the previous release info
-        core.info(`Tag Name: '${targetTag}'`);
-        core.info(`Draft: '${prevDraft}'`);
-        core.info(`Release ID: '${prevReleaseId}'`);
-        return data;
-    });
-}
-exports.getRecentRelease = getRecentRelease;
 
 
 /***/ }),
@@ -621,15 +581,14 @@ function run() {
             //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
             // Update Release
-            //Check that a previous Release Draft exists
             if (prevDraft === true) {
-                //Generate release notes based on previous release id
+                //Generate release notes
                 const { 0: updateName, 1: updateBody } = yield (0, create_notes_1.createNotes)(targetTag);
                 //Update existing draft
                 yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
             }
             else {
-                // Create a release
+                // Create a new draft
                 const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag);
                 yield (0, create_draft_1.createDraft)(nextTag);
             }
@@ -8865,19 +8824,6 @@ module.exports = SemVer
 
 /***/ }),
 
-/***/ 8848:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const parse = __nccwpck_require__(5925)
-const clean = (version, options) => {
-  const s = parse(version.trim().replace(/^[=v]+/, ''), options)
-  return s ? s.version : null
-}
-module.exports = clean
-
-
-/***/ }),
-
 /***/ 900:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -8896,46 +8842,6 @@ const inc = (version, release, options, identifier) => {
   }
 }
 module.exports = inc
-
-
-/***/ }),
-
-/***/ 5925:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const {MAX_LENGTH} = __nccwpck_require__(2293)
-const { re, t } = __nccwpck_require__(9523)
-const SemVer = __nccwpck_require__(8088)
-
-const parseOptions = __nccwpck_require__(785)
-const parse = (version, options) => {
-  options = parseOptions(options)
-
-  if (version instanceof SemVer) {
-    return version
-  }
-
-  if (typeof version !== 'string') {
-    return null
-  }
-
-  if (version.length > MAX_LENGTH) {
-    return null
-  }
-
-  const r = options.loose ? re[t.LOOSE] : re[t.FULL]
-  if (!r.test(version)) {
-    return null
-  }
-
-  try {
-    return new SemVer(version, options)
-  } catch (er) {
-    return null
-  }
-}
-
-module.exports = parse
 
 
 /***/ }),
