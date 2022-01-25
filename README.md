@@ -23,15 +23,25 @@ Inputs are defined in [`action.yml`](action.yml):
 | `repo-token` | `Yes`| Token to use to authenticate with GitHub API. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
 | `commitish` | `No` | Target of release. | Default branch |
 | `bump` | `No` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
+| `release-strategy` | `No` | See [Release Strategies](#release-strategies) for more details. | `single`
 
 ### Outputs
-Inputs are defined in [`action.yml`](action.yml):
+Outputs are defined in [`action.yml`](action.yml):
 
 | Name | Description |
 | ---- | ----------- |
 | `id` | The ID of the created Release. |
 | `html_url` | The URL users can navigate to in order to view the release. |
 | `upload_url` | The URL for uploading assets to the release. |
+
+### Release Strategies
+Inputs are defined in [`action.yml`](action.yml):
+
+| Name | Description |
+| ---- | ----------- |
+| `single` | Assumes one release draft is active at a time. This release draft will be created as a general release. Example: `v1.0.0` |
+| `double` | Assumes two environments are in use. The first release draft will be flagged as a pre-release, followed by a general draft release once the pre-release is released. Example: `v1.0.0-alpha.1` followed by `v1.0.0` |
+| `triple` | Assumes three environments are in use. This is similar to `double` but will add an additional pre-release between general releases. Example: `v1.0.0-alpha.1` followed by `v1.0.0-beta.1` followed by `v1.0.0` |
 
 ## Example workflow
 
