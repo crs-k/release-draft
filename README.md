@@ -22,7 +22,7 @@ Inputs are defined in [`action.yml`](action.yml):
 | ---- | -------- | ----------- | ------- |
 | `repo-token` | `Yes`| Token to use to authenticate with GitHub API. [GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) suggested. | N/A |
 | `commitish` | `No` | Target of release. | Default branch |
-| `bump` | `No` | Version increase type. Options: `major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, or `prerelease`. | `patch`
+| `bump` | `No` | Version increase type. Options: `major`, `minor`, `patch`. | `patch`
 | `release-strategy` | `No` | See [Release Strategies](#release-strategies) for more details. | `single`
 
 ### Outputs

@@ -133,40 +133,36 @@ const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
-let releaseType;
+let increaseType;
 switch (get_context_1.bumpType) {
     case 'major':
-        releaseType = 'major';
+        increaseType = 'major';
         break;
     case 'minor':
-        releaseType = 'minor';
+        increaseType = 'minor';
         break;
     case 'patch':
-        releaseType = 'patch';
-        break;
-    case 'premajor':
-        releaseType = 'premajor';
-        break;
-    case 'preminor':
-        releaseType = 'preminor';
-        break;
-    case 'prepatch':
-        releaseType = 'prepatch';
-        break;
-    case 'prerelease':
-        releaseType = 'prerelease';
+        increaseType = 'patch';
         break;
 }
-function createNextTag(targetTag) {
+function createNextTag(targetTag, nextReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Generating Next tag...');
         let nextTag;
         try {
             //bump version
-            const cleanTag = (0, clean_1.default)(targetTag) || '';
-            const bumpTag = (0, inc_1.default)(cleanTag, releaseType);
-            nextTag = `v${bumpTag}`;
-            assert.ok(bumpTag, 'next tag cannot be empty');
+            if (nextReleaseType === 'production') {
+                const cleanTag = (0, clean_1.default)(targetTag) || '';
+                const bumpTag = (0, inc_1.default)(cleanTag, increaseType);
+                nextTag = `v${bumpTag}`;
+                assert.ok(bumpTag, 'next tag cannot be empty');
+            }
+            else {
+                const cleanTag = (0, clean_1.default)(targetTag) || '';
+                const bumpTag = (0, inc_1.default)(cleanTag, 'prerelease', nextReleaseType);
+                nextTag = `v${bumpTag}`;
+                assert.ok(bumpTag, 'next tag cannot be empty');
+            }
         }
         catch (err) {
             core.info('Next tag failed to generate. Defaulting to v0.1.0');
@@ -174,7 +170,7 @@ function createNextTag(targetTag) {
         }
         const data = nextTag;
         // Next tag
-        core.info(`Bump Type: ${releaseType.toString()}`);
+        core.info(`Bump Type: ${increaseType.toString()}`);
         core.info(`Next tag: ${nextTag}`);
         return data;
     });
@@ -282,7 +278,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.bumpType = exports.repo = exports.owner = exports.github = void 0;
+exports.releaseStrategy = exports.bumpType = exports.repo = exports.owner = exports.github = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const repoToken = core.getInput('repo-token', { required: true });
@@ -290,6 +286,7 @@ core.setSecret(repoToken);
 exports.github = (0, github_1.getOctokit)(repoToken);
 _a = github_1.context.repo, exports.owner = _a.owner, exports.repo = _a.repo;
 exports.bumpType = core.getInput('bump', { required: false });
+exports.releaseStrategy = core.getInput('release-strategy', { required: false });
 
 
 /***/ }),
@@ -362,6 +359,75 @@ function getDefaultBranch() {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
+
+
+/***/ }),
+
+/***/ 6217:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getNextReleaseType = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+function getNextReleaseType(previousReleaseType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let nextReleaseType;
+        try {
+            if (previousReleaseType === 'production' &&
+                (get_context_1.releaseStrategy === 'triple' || get_context_1.releaseStrategy === 'double')) {
+                nextReleaseType = 'alpha';
+            }
+            else if (previousReleaseType === 'alpha' && get_context_1.releaseStrategy === 'triple') {
+                nextReleaseType = 'beta';
+            }
+            else {
+                nextReleaseType = 'production';
+            }
+            assert.ok(nextReleaseType, 'previous release type cannot be empty');
+        }
+        catch (err) {
+            core.info('Failed to find previous release type.');
+            nextReleaseType = '';
+        }
+        const data = nextReleaseType;
+        // Next tag
+        core.info(`Next Release Type: ${nextReleaseType}`);
+        return data;
+    });
+}
+exports.getNextReleaseType = getNextReleaseType;
 
 
 /***/ }),
@@ -639,6 +705,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const create_draft_1 = __nccwpck_require__(1536);
 const create_next_tag_1 = __nccwpck_require__(5961);
 const create_notes_1 = __nccwpck_require__(2565);
+const get_next_release_type_1 = __nccwpck_require__(6217);
 const get_recent_release_1 = __nccwpck_require__(6407);
 const get_release_type_1 = __nccwpck_require__(8079);
 const update_draft_1 = __nccwpck_require__(4966);
@@ -649,8 +716,6 @@ function run() {
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
             //Check previous release type
             //if (prevDraft === false && prevReleaseId !== 0) {
-            const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
-            core.info(previousReleaseType);
             //}
             // Update Release
             if (prevDraft === true) {
@@ -659,9 +724,17 @@ function run() {
                 //Update existing draft
                 yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
             }
+            else if (prevDraft === false && prevReleaseId !== 0) {
+                const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
+                const nextReleaseType = yield (0, get_next_release_type_1.getNextReleaseType)(previousReleaseType);
+                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag, nextReleaseType);
+                yield (0, create_draft_1.createDraft)(nextTag);
+            }
             else {
                 // Create a new draft
-                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag);
+                const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
+                const nextReleaseType = yield (0, get_next_release_type_1.getNextReleaseType)(previousReleaseType);
+                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag, nextReleaseType);
                 yield (0, create_draft_1.createDraft)(nextTag);
             }
         }

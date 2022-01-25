@@ -3,6 +3,7 @@ import * as core from '@actions/core'
 import {createDraft} from './functions/create-draft'
 import {createNextTag} from './functions/create-next-tag'
 import {createNotes} from './functions/create-notes'
+import {getNextReleaseType} from './functions/get-next-release-type'
 import {getRecentRelease} from './functions/get-recent-release'
 import {getReleaseType} from './functions/get-release-type'
 import {updateDraft} from './functions/update-draft'
@@ -14,8 +15,7 @@ export async function run(): Promise<void> {
 
     //Check previous release type
     //if (prevDraft === false && prevReleaseId !== 0) {
-    const previousReleaseType = await getReleaseType(targetTag)
-    core.info(previousReleaseType)
+
     //}
 
     // Update Release
@@ -25,9 +25,16 @@ export async function run(): Promise<void> {
 
       //Update existing draft
       await updateDraft(targetTag, updateName, updateBody, prevReleaseId)
+    } else if (prevDraft === false && prevReleaseId !== 0) {
+      const previousReleaseType = await getReleaseType(targetTag)
+      const nextReleaseType = await getNextReleaseType(previousReleaseType)
+      const nextTag = await createNextTag(targetTag, nextReleaseType)
+      await createDraft(nextTag)
     } else {
       // Create a new draft
-      const nextTag = await createNextTag(targetTag)
+      const previousReleaseType = await getReleaseType(targetTag)
+      const nextReleaseType = await getNextReleaseType(previousReleaseType)
+      const nextTag = await createNextTag(targetTag, nextReleaseType)
       await createDraft(nextTag)
     }
   } catch (error) {
