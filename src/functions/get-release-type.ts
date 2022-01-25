@@ -2,25 +2,25 @@ import * as assert from 'assert'
 import * as core from '@actions/core'
 
 export async function getReleaseType(previousTag: string): Promise<string> {
-  let prevReleaseType: string
+  let previousReleaseType: string
 
   try {
     if (previousTag.includes('alpha')) {
-      prevReleaseType = 'alpha'
+      previousReleaseType = 'alpha'
     } else if (previousTag.includes('beta')) {
-      prevReleaseType = 'beta'
+      previousReleaseType = 'beta'
     } else {
-      prevReleaseType = 'production'
+      previousReleaseType = 'production'
     }
 
-    assert.ok(prevReleaseType, 'next tag cannot be empty')
+    assert.ok(previousReleaseType, 'previous release type cannot be empty')
   } catch (err) {
     core.info('Failed to find previous release type.')
-    prevReleaseType = ''
+    previousReleaseType = ''
   }
-  const data = prevReleaseType
+  const data = previousReleaseType
   // Next tag
-  core.info(`Next tag: ${prevReleaseType}`)
+  core.info(`Previous Release Type: ${previousReleaseType}`)
 
   return data
 }
