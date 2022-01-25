@@ -51,6 +51,7 @@ jobs:
       - uses: ./
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          release-strategy: 'triple'
 
   Build:
     name: Build

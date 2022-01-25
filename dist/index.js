@@ -40,12 +40,19 @@ const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
 const get_default_branch_1 = __nccwpck_require__(8662);
-function createDraft(nextTag) {
+function createDraft(nextTag, nextReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Creating Release Draft...');
         let releaseId;
         let html_url;
         let upload_url;
+        let prereleaseBool;
+        if (nextReleaseType === 'production') {
+            prereleaseBool = false;
+        }
+        else {
+            prereleaseBool = true;
+        }
         try {
             //Find default branch
             const defaultBranch = yield (0, get_default_branch_1.getDefaultBranch)();
@@ -58,7 +65,8 @@ function createDraft(nextTag) {
                 name: nextTag,
                 target_commitish: commitish,
                 draft: true,
-                generate_release_notes: true
+                generate_release_notes: true,
+                prerelease: prereleaseBool
             });
             releaseId = response.data.id;
             html_url = response.data.html_url;
@@ -130,43 +138,39 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createNextTag = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
-const bump = core.getInput('bump', { required: false }) || 'patch';
-let releaseType;
-switch (bump) {
+let increaseType;
+switch (get_context_1.bumpType) {
     case 'major':
-        releaseType = 'major';
+        increaseType = 'major';
         break;
     case 'minor':
-        releaseType = 'minor';
+        increaseType = 'minor';
         break;
     case 'patch':
-        releaseType = 'patch';
-        break;
-    case 'premajor':
-        releaseType = 'premajor';
-        break;
-    case 'preminor':
-        releaseType = 'preminor';
-        break;
-    case 'prepatch':
-        releaseType = 'prepatch';
-        break;
-    case 'prerelease':
-        releaseType = 'prerelease';
+        increaseType = 'patch';
         break;
 }
-function createNextTag(targetTag) {
+function createNextTag(targetTag, nextReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Generating Next tag...');
         let nextTag;
         try {
             //bump version
-            const cleanTag = (0, clean_1.default)(targetTag) || '';
-            const bumpTag = (0, inc_1.default)(cleanTag, releaseType);
-            nextTag = `v${bumpTag}`;
-            assert.ok(bumpTag, 'next tag cannot be empty');
+            if (nextReleaseType === 'production') {
+                const cleanTag = (0, clean_1.default)(targetTag) || '';
+                const bumpTag = (0, inc_1.default)(cleanTag, increaseType);
+                nextTag = `v${bumpTag}`;
+                assert.ok(bumpTag, 'next tag cannot be empty');
+            }
+            else {
+                const cleanTag = (0, clean_1.default)(targetTag) || '';
+                const bumpTag = (0, inc_1.default)(cleanTag, 'prerelease', nextReleaseType);
+                nextTag = `v${bumpTag}`;
+                assert.ok(bumpTag, 'next tag cannot be empty');
+            }
         }
         catch (err) {
             core.info('Next tag failed to generate. Defaulting to v0.1.0');
@@ -174,7 +178,7 @@ function createNextTag(targetTag) {
         }
         const data = nextTag;
         // Next tag
-        core.info(`Bump Type: ${releaseType.toString()}`);
+        core.info(`Bump Type: ${increaseType.toString()}`);
         core.info(`Next tag: ${nextTag}`);
         return data;
     });
@@ -282,13 +286,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.repo = exports.owner = exports.github = void 0;
+exports.releaseStrategy = exports.bumpType = exports.repo = exports.owner = exports.github = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const repoToken = core.getInput('repo-token', { required: true });
 core.setSecret(repoToken);
 exports.github = (0, github_1.getOctokit)(repoToken);
 _a = github_1.context.repo, exports.owner = _a.owner, exports.repo = _a.repo;
+exports.bumpType = core.getInput('bump', { required: false });
+exports.releaseStrategy = core.getInput('release-strategy', { required: false });
 
 
 /***/ }),
@@ -361,6 +367,75 @@ function getDefaultBranch() {
     });
 }
 exports.getDefaultBranch = getDefaultBranch;
+
+
+/***/ }),
+
+/***/ 6217:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getNextReleaseType = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+function getNextReleaseType(previousReleaseType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let nextReleaseType;
+        try {
+            if (previousReleaseType === 'production' &&
+                (get_context_1.releaseStrategy === 'triple' || get_context_1.releaseStrategy === 'double')) {
+                nextReleaseType = 'alpha';
+            }
+            else if (previousReleaseType === 'alpha' && get_context_1.releaseStrategy === 'triple') {
+                nextReleaseType = 'beta';
+            }
+            else {
+                nextReleaseType = 'production';
+            }
+            assert.ok(nextReleaseType, 'previous release type cannot be empty');
+        }
+        catch (err) {
+            core.info('Failed to find previous release type.');
+            nextReleaseType = '';
+        }
+        const data = nextReleaseType;
+        // Next tag
+        core.info(`Next Release Type: ${nextReleaseType}`);
+        return data;
+    });
+}
+exports.getNextReleaseType = getNextReleaseType;
 
 
 /***/ }),
@@ -443,6 +518,73 @@ function getRecentRelease() {
     });
 }
 exports.getRecentRelease = getRecentRelease;
+
+
+/***/ }),
+
+/***/ 8079:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getReleaseType = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+function getReleaseType(previousTag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let previousReleaseType;
+        try {
+            if (previousTag.includes('alpha')) {
+                previousReleaseType = 'alpha';
+            }
+            else if (previousTag.includes('beta')) {
+                previousReleaseType = 'beta';
+            }
+            else {
+                previousReleaseType = 'production';
+            }
+            assert.ok(previousReleaseType, 'previous release type cannot be empty');
+        }
+        catch (err) {
+            core.info('Failed to find previous release type.');
+            previousReleaseType = '';
+        }
+        const data = previousReleaseType;
+        // Next tag
+        core.info(`Previous Release Type: ${previousReleaseType}`);
+        return data;
+    });
+}
+exports.getReleaseType = getReleaseType;
 
 
 /***/ }),
@@ -571,13 +713,18 @@ const core = __importStar(__nccwpck_require__(2186));
 const create_draft_1 = __nccwpck_require__(1536);
 const create_next_tag_1 = __nccwpck_require__(5961);
 const create_notes_1 = __nccwpck_require__(2565);
+const get_next_release_type_1 = __nccwpck_require__(6217);
 const get_recent_release_1 = __nccwpck_require__(6407);
+const get_release_type_1 = __nccwpck_require__(8079);
 const update_draft_1 = __nccwpck_require__(4966);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
+            //Check previous release type
+            //if (prevDraft === false && prevReleaseId !== 0) {
+            //}
             // Update Release
             if (prevDraft === true) {
                 //Generate release notes
@@ -585,10 +732,18 @@ function run() {
                 //Update existing draft
                 yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
             }
+            else if (prevDraft === false && prevReleaseId !== 0) {
+                const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
+                const nextReleaseType = yield (0, get_next_release_type_1.getNextReleaseType)(previousReleaseType);
+                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag, nextReleaseType);
+                yield (0, create_draft_1.createDraft)(nextTag, nextReleaseType);
+            }
             else {
                 // Create a new draft
-                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag);
-                yield (0, create_draft_1.createDraft)(nextTag);
+                const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
+                const nextReleaseType = yield (0, get_next_release_type_1.getNextReleaseType)(previousReleaseType);
+                const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag, nextReleaseType);
+                yield (0, create_draft_1.createDraft)(nextTag, nextReleaseType);
             }
         }
         catch (error) {
@@ -4215,7 +4370,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var endpoint = __nccwpck_require__(9440);
 var universalUserAgent = __nccwpck_require__(5030);
 var isPlainObject = __nccwpck_require__(3287);
-var nodeFetch = _interopDefault(__nccwpck_require__(467));
+var nodeFetch = _interopDefault(__nccwpck_require__(1768));
 var requestError = __nccwpck_require__(537);
 
 const VERSION = "5.6.2";
@@ -4387,258 +4542,7 @@ exports.request = request;
 
 /***/ }),
 
-/***/ 3682:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var register = __nccwpck_require__(4670)
-var addHook = __nccwpck_require__(5549)
-var removeHook = __nccwpck_require__(6819)
-
-// bind with array of arguments: https://stackoverflow.com/a/21792913
-var bind = Function.bind
-var bindable = bind.bind(bind)
-
-function bindApi (hook, state, name) {
-  var removeHookRef = bindable(removeHook, null).apply(null, name ? [state, name] : [state])
-  hook.api = { remove: removeHookRef }
-  hook.remove = removeHookRef
-
-  ;['before', 'error', 'after', 'wrap'].forEach(function (kind) {
-    var args = name ? [state, kind, name] : [state, kind]
-    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args)
-  })
-}
-
-function HookSingular () {
-  var singularHookName = 'h'
-  var singularHookState = {
-    registry: {}
-  }
-  var singularHook = register.bind(null, singularHookState, singularHookName)
-  bindApi(singularHook, singularHookState, singularHookName)
-  return singularHook
-}
-
-function HookCollection () {
-  var state = {
-    registry: {}
-  }
-
-  var hook = register.bind(null, state)
-  bindApi(hook, state)
-
-  return hook
-}
-
-var collectionHookDeprecationMessageDisplayed = false
-function Hook () {
-  if (!collectionHookDeprecationMessageDisplayed) {
-    console.warn('[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4')
-    collectionHookDeprecationMessageDisplayed = true
-  }
-  return HookCollection()
-}
-
-Hook.Singular = HookSingular.bind()
-Hook.Collection = HookCollection.bind()
-
-module.exports = Hook
-// expose constructors as a named property for TypeScript
-module.exports.Hook = Hook
-module.exports.Singular = Hook.Singular
-module.exports.Collection = Hook.Collection
-
-
-/***/ }),
-
-/***/ 5549:
-/***/ ((module) => {
-
-module.exports = addHook;
-
-function addHook(state, kind, name, hook) {
-  var orig = hook;
-  if (!state.registry[name]) {
-    state.registry[name] = [];
-  }
-
-  if (kind === "before") {
-    hook = function (method, options) {
-      return Promise.resolve()
-        .then(orig.bind(null, options))
-        .then(method.bind(null, options));
-    };
-  }
-
-  if (kind === "after") {
-    hook = function (method, options) {
-      var result;
-      return Promise.resolve()
-        .then(method.bind(null, options))
-        .then(function (result_) {
-          result = result_;
-          return orig(result, options);
-        })
-        .then(function () {
-          return result;
-        });
-    };
-  }
-
-  if (kind === "error") {
-    hook = function (method, options) {
-      return Promise.resolve()
-        .then(method.bind(null, options))
-        .catch(function (error) {
-          return orig(error, options);
-        });
-    };
-  }
-
-  state.registry[name].push({
-    hook: hook,
-    orig: orig,
-  });
-}
-
-
-/***/ }),
-
-/***/ 4670:
-/***/ ((module) => {
-
-module.exports = register;
-
-function register(state, name, method, options) {
-  if (typeof method !== "function") {
-    throw new Error("method for before hook must be a function");
-  }
-
-  if (!options) {
-    options = {};
-  }
-
-  if (Array.isArray(name)) {
-    return name.reverse().reduce(function (callback, name) {
-      return register.bind(null, state, name, callback, options);
-    }, method)();
-  }
-
-  return Promise.resolve().then(function () {
-    if (!state.registry[name]) {
-      return method(options);
-    }
-
-    return state.registry[name].reduce(function (method, registered) {
-      return registered.hook.bind(null, method, options);
-    }, method)();
-  });
-}
-
-
-/***/ }),
-
-/***/ 6819:
-/***/ ((module) => {
-
-module.exports = removeHook;
-
-function removeHook(state, name, method) {
-  if (!state.registry[name]) {
-    return;
-  }
-
-  var index = state.registry[name]
-    .map(function (registered) {
-      return registered.orig;
-    })
-    .indexOf(method);
-
-  if (index === -1) {
-    return;
-  }
-
-  state.registry[name].splice(index, 1);
-}
-
-
-/***/ }),
-
-/***/ 8932:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-class Deprecation extends Error {
-  constructor(message) {
-    super(message); // Maintains proper stack trace (only available on V8)
-
-    /* istanbul ignore next */
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-
-    this.name = 'Deprecation';
-  }
-
-}
-
-exports.Deprecation = Deprecation;
-
-
-/***/ }),
-
-/***/ 3287:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObject(o) {
-  return Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor,prot;
-
-  if (isObject(o) === false) return false;
-
-  // If has modified constructor
-  ctor = o.constructor;
-  if (ctor === undefined) return true;
-
-  // If has modified prototype
-  prot = ctor.prototype;
-  if (isObject(prot) === false) return false;
-
-  // If constructor does not have an Object-specific method
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  // Most likely a plain Object
-  return true;
-}
-
-exports.isPlainObject = isPlainObject;
-
-
-/***/ }),
-
-/***/ 467:
+/***/ 1768:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4651,7 +4555,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var Stream = _interopDefault(__nccwpck_require__(2781));
 var http = _interopDefault(__nccwpck_require__(3685));
 var Url = _interopDefault(__nccwpck_require__(7310));
-var whatwgUrl = _interopDefault(__nccwpck_require__(3323));
+var whatwgUrl = _interopDefault(__nccwpck_require__(301));
 var https = _interopDefault(__nccwpck_require__(5687));
 var zlib = _interopDefault(__nccwpck_require__(9796));
 
@@ -6049,9 +5953,17 @@ AbortError.prototype = Object.create(Error.prototype);
 AbortError.prototype.constructor = AbortError;
 AbortError.prototype.name = 'AbortError';
 
+const URL$1 = Url.URL || whatwgUrl.URL;
+
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough$1 = Stream.PassThrough;
-const resolve_url = Url.resolve;
+
+const isDomainOrSubdomain = function isDomainOrSubdomain(destination, original) {
+	const orig = new URL$1(original).hostname;
+	const dest = new URL$1(destination).hostname;
+
+	return orig === dest || orig[orig.length - dest.length - 1] === '.' && orig.endsWith(dest);
+};
 
 /**
  * Fetch function
@@ -6139,7 +6051,19 @@ function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : resolve_url(request.url, location);
+				let locationURL = null;
+				try {
+					locationURL = location === null ? null : new URL$1(location, request.url).toString();
+				} catch (err) {
+					// error here can only be invalid URL in Location: header
+					// do not throw when options.redirect == manual
+					// let the user extract the errorneous redirect URL
+					if (request.redirect !== 'manual') {
+						reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, 'invalid-redirect'));
+						finalize();
+						return;
+					}
+				}
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -6186,6 +6110,12 @@ function fetch(url, opts) {
 							timeout: request.timeout,
 							size: request.size
 						};
+
+						if (!isDomainOrSubdomain(request.url, locationURL)) {
+							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
+								requestOpts.headers.delete(name);
+							}
+						}
 
 						// HTTP-redirect fetch step 9
 						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
@@ -6317,14 +6247,14 @@ exports.FetchError = FetchError;
 
 /***/ }),
 
-/***/ 2299:
+/***/ 3039:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 var punycode = __nccwpck_require__(5477);
-var mappingTable = __nccwpck_require__(1907);
+var mappingTable = __nccwpck_require__(6492);
 
 var PROCESSING_OPTIONS = {
   TRANSITIONAL: 0,
@@ -6518,7 +6448,7 @@ module.exports.PROCESSING_OPTIONS = PROCESSING_OPTIONS;
 
 /***/ }),
 
-/***/ 5871:
+/***/ 6542:
 /***/ ((module) => {
 
 "use strict";
@@ -6715,12 +6645,12 @@ conversions["RegExp"] = function (V, opts) {
 
 /***/ }),
 
-/***/ 8262:
+/***/ 394:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-const usm = __nccwpck_require__(33);
+const usm = __nccwpck_require__(1234);
 
 exports.implementation = class URLImpl {
   constructor(constructorArgs) {
@@ -6923,15 +6853,15 @@ exports.implementation = class URLImpl {
 
 /***/ }),
 
-/***/ 653:
+/***/ 2047:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const conversions = __nccwpck_require__(5871);
-const utils = __nccwpck_require__(276);
-const Impl = __nccwpck_require__(8262);
+const conversions = __nccwpck_require__(6542);
+const utils = __nccwpck_require__(3387);
+const Impl = __nccwpck_require__(394);
 
 const impl = utils.implSymbol;
 
@@ -7127,32 +7057,32 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3323:
+/***/ 301:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-exports.URL = __nccwpck_require__(653)["interface"];
-exports.serializeURL = __nccwpck_require__(33).serializeURL;
-exports.serializeURLOrigin = __nccwpck_require__(33).serializeURLOrigin;
-exports.basicURLParse = __nccwpck_require__(33).basicURLParse;
-exports.setTheUsername = __nccwpck_require__(33).setTheUsername;
-exports.setThePassword = __nccwpck_require__(33).setThePassword;
-exports.serializeHost = __nccwpck_require__(33).serializeHost;
-exports.serializeInteger = __nccwpck_require__(33).serializeInteger;
-exports.parseURL = __nccwpck_require__(33).parseURL;
+exports.URL = __nccwpck_require__(2047)["interface"];
+exports.serializeURL = __nccwpck_require__(1234).serializeURL;
+exports.serializeURLOrigin = __nccwpck_require__(1234).serializeURLOrigin;
+exports.basicURLParse = __nccwpck_require__(1234).basicURLParse;
+exports.setTheUsername = __nccwpck_require__(1234).setTheUsername;
+exports.setThePassword = __nccwpck_require__(1234).setThePassword;
+exports.serializeHost = __nccwpck_require__(1234).serializeHost;
+exports.serializeInteger = __nccwpck_require__(1234).serializeInteger;
+exports.parseURL = __nccwpck_require__(1234).parseURL;
 
 
 /***/ }),
 
-/***/ 33:
+/***/ 1234:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 const punycode = __nccwpck_require__(5477);
-const tr46 = __nccwpck_require__(2299);
+const tr46 = __nccwpck_require__(3039);
 
 const specialSchemes = {
   ftp: 21,
@@ -8451,7 +8381,7 @@ module.exports.parseURL = function (input, options) {
 
 /***/ }),
 
-/***/ 276:
+/***/ 3387:
 /***/ ((module) => {
 
 "use strict";
@@ -8475,6 +8405,257 @@ module.exports.implForWrapper = function (wrapper) {
   return wrapper[module.exports.implSymbol];
 };
 
+
+
+/***/ }),
+
+/***/ 3682:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var register = __nccwpck_require__(4670)
+var addHook = __nccwpck_require__(5549)
+var removeHook = __nccwpck_require__(6819)
+
+// bind with array of arguments: https://stackoverflow.com/a/21792913
+var bind = Function.bind
+var bindable = bind.bind(bind)
+
+function bindApi (hook, state, name) {
+  var removeHookRef = bindable(removeHook, null).apply(null, name ? [state, name] : [state])
+  hook.api = { remove: removeHookRef }
+  hook.remove = removeHookRef
+
+  ;['before', 'error', 'after', 'wrap'].forEach(function (kind) {
+    var args = name ? [state, kind, name] : [state, kind]
+    hook[kind] = hook.api[kind] = bindable(addHook, null).apply(null, args)
+  })
+}
+
+function HookSingular () {
+  var singularHookName = 'h'
+  var singularHookState = {
+    registry: {}
+  }
+  var singularHook = register.bind(null, singularHookState, singularHookName)
+  bindApi(singularHook, singularHookState, singularHookName)
+  return singularHook
+}
+
+function HookCollection () {
+  var state = {
+    registry: {}
+  }
+
+  var hook = register.bind(null, state)
+  bindApi(hook, state)
+
+  return hook
+}
+
+var collectionHookDeprecationMessageDisplayed = false
+function Hook () {
+  if (!collectionHookDeprecationMessageDisplayed) {
+    console.warn('[before-after-hook]: "Hook()" repurposing warning, use "Hook.Collection()". Read more: https://git.io/upgrade-before-after-hook-to-1.4')
+    collectionHookDeprecationMessageDisplayed = true
+  }
+  return HookCollection()
+}
+
+Hook.Singular = HookSingular.bind()
+Hook.Collection = HookCollection.bind()
+
+module.exports = Hook
+// expose constructors as a named property for TypeScript
+module.exports.Hook = Hook
+module.exports.Singular = Hook.Singular
+module.exports.Collection = Hook.Collection
+
+
+/***/ }),
+
+/***/ 5549:
+/***/ ((module) => {
+
+module.exports = addHook;
+
+function addHook(state, kind, name, hook) {
+  var orig = hook;
+  if (!state.registry[name]) {
+    state.registry[name] = [];
+  }
+
+  if (kind === "before") {
+    hook = function (method, options) {
+      return Promise.resolve()
+        .then(orig.bind(null, options))
+        .then(method.bind(null, options));
+    };
+  }
+
+  if (kind === "after") {
+    hook = function (method, options) {
+      var result;
+      return Promise.resolve()
+        .then(method.bind(null, options))
+        .then(function (result_) {
+          result = result_;
+          return orig(result, options);
+        })
+        .then(function () {
+          return result;
+        });
+    };
+  }
+
+  if (kind === "error") {
+    hook = function (method, options) {
+      return Promise.resolve()
+        .then(method.bind(null, options))
+        .catch(function (error) {
+          return orig(error, options);
+        });
+    };
+  }
+
+  state.registry[name].push({
+    hook: hook,
+    orig: orig,
+  });
+}
+
+
+/***/ }),
+
+/***/ 4670:
+/***/ ((module) => {
+
+module.exports = register;
+
+function register(state, name, method, options) {
+  if (typeof method !== "function") {
+    throw new Error("method for before hook must be a function");
+  }
+
+  if (!options) {
+    options = {};
+  }
+
+  if (Array.isArray(name)) {
+    return name.reverse().reduce(function (callback, name) {
+      return register.bind(null, state, name, callback, options);
+    }, method)();
+  }
+
+  return Promise.resolve().then(function () {
+    if (!state.registry[name]) {
+      return method(options);
+    }
+
+    return state.registry[name].reduce(function (method, registered) {
+      return registered.hook.bind(null, method, options);
+    }, method)();
+  });
+}
+
+
+/***/ }),
+
+/***/ 6819:
+/***/ ((module) => {
+
+module.exports = removeHook;
+
+function removeHook(state, name, method) {
+  if (!state.registry[name]) {
+    return;
+  }
+
+  var index = state.registry[name]
+    .map(function (registered) {
+      return registered.orig;
+    })
+    .indexOf(method);
+
+  if (index === -1) {
+    return;
+  }
+
+  state.registry[name].splice(index, 1);
+}
+
+
+/***/ }),
+
+/***/ 8932:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+class Deprecation extends Error {
+  constructor(message) {
+    super(message); // Maintains proper stack trace (only available on V8)
+
+    /* istanbul ignore next */
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    this.name = 'Deprecation';
+  }
+
+}
+
+exports.Deprecation = Deprecation;
+
+
+/***/ }),
+
+/***/ 3287:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(o) {
+  return Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (ctor === undefined) return true;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+exports.isPlainObject = isPlainObject;
 
 
 /***/ }),
@@ -9640,7 +9821,7 @@ module.exports = require("zlib");
 
 /***/ }),
 
-/***/ 1907:
+/***/ 6492:
 /***/ ((module) => {
 
 "use strict";
