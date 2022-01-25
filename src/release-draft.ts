@@ -13,10 +13,10 @@ export async function run(): Promise<void> {
     const {0: targetTag, 1: prevDraft, 2: prevReleaseId} = await getRecentRelease()
 
     //Check previous release type
-    if (prevDraft === false && prevReleaseId !== 0) {
-      const previousReleaseType = await getReleaseType(targetTag)
-      core.info(previousReleaseType)
-    }
+    //if (prevDraft === false && prevReleaseId !== 0) {
+    const previousReleaseType = await getReleaseType(targetTag)
+    core.info(previousReleaseType)
+    //}
 
     // Update Release
     if (prevDraft === true) {

@@ -648,10 +648,10 @@ function run() {
             //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
             //Check previous release type
-            if (prevDraft === false && prevReleaseId !== 0) {
-                const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
-                core.info(previousReleaseType);
-            }
+            //if (prevDraft === false && prevReleaseId !== 0) {
+            const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
+            core.info(previousReleaseType);
+            //}
             // Update Release
             if (prevDraft === true) {
                 //Generate release notes
