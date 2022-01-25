@@ -1,14 +1,22 @@
 import * as core from '@actions/core'
+
 import {createDraft} from './functions/create-draft'
 import {createNextTag} from './functions/create-next-tag'
 import {createNotes} from './functions/create-notes'
 import {getRecentRelease} from './functions/get-recent-release'
+import {getReleaseType} from './functions/get-release-type'
 import {updateDraft} from './functions/update-draft'
 
 export async function run(): Promise<void> {
   try {
     //Check for existence of release draft
     const {0: targetTag, 1: prevDraft, 2: prevReleaseId} = await getRecentRelease()
+
+    //Check previous release type
+    if (prevDraft === false && prevReleaseId !== 0) {
+      const previousReleaseType = await getReleaseType(targetTag)
+      core.info(previousReleaseType)
+    }
 
     // Update Release
     if (prevDraft === true) {

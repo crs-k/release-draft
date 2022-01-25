@@ -130,11 +130,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createNextTag = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
 const clean_1 = __importDefault(__nccwpck_require__(8848));
 const inc_1 = __importDefault(__nccwpck_require__(900));
-const bump = core.getInput('bump', { required: false }) || 'patch';
 let releaseType;
-switch (bump) {
+switch (get_context_1.bumpType) {
     case 'major':
         releaseType = 'major';
         break;
@@ -282,13 +282,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.repo = exports.owner = exports.github = void 0;
+exports.bumpType = exports.repo = exports.owner = exports.github = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const repoToken = core.getInput('repo-token', { required: true });
 core.setSecret(repoToken);
 exports.github = (0, github_1.getOctokit)(repoToken);
 _a = github_1.context.repo, exports.owner = _a.owner, exports.repo = _a.repo;
+exports.bumpType = core.getInput('bump', { required: false });
 
 
 /***/ }),
@@ -447,6 +448,73 @@ exports.getRecentRelease = getRecentRelease;
 
 /***/ }),
 
+/***/ 8079:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getReleaseType = void 0;
+const assert = __importStar(__nccwpck_require__(9491));
+const core = __importStar(__nccwpck_require__(2186));
+function getReleaseType(previousTag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let prevReleaseType;
+        try {
+            if (previousTag.includes('alpha')) {
+                prevReleaseType = 'alpha';
+            }
+            else if (previousTag.includes('beta')) {
+                prevReleaseType = 'beta';
+            }
+            else {
+                prevReleaseType = 'production';
+            }
+            assert.ok(prevReleaseType, 'next tag cannot be empty');
+        }
+        catch (err) {
+            core.info('Failed to find previous release type.');
+            prevReleaseType = '';
+        }
+        const data = prevReleaseType;
+        // Next tag
+        core.info(`Next tag: ${prevReleaseType}`);
+        return data;
+    });
+}
+exports.getReleaseType = getReleaseType;
+
+
+/***/ }),
+
 /***/ 4966:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -572,12 +640,18 @@ const create_draft_1 = __nccwpck_require__(1536);
 const create_next_tag_1 = __nccwpck_require__(5961);
 const create_notes_1 = __nccwpck_require__(2565);
 const get_recent_release_1 = __nccwpck_require__(6407);
+const get_release_type_1 = __nccwpck_require__(8079);
 const update_draft_1 = __nccwpck_require__(4966);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
+            //Check previous release type
+            if (prevDraft === false && prevReleaseId !== 0) {
+                const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
+                core.info(previousReleaseType);
+            }
             // Update Release
             if (prevDraft === true) {
                 //Generate release notes

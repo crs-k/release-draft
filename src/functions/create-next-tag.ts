@@ -1,13 +1,13 @@
 import * as assert from 'assert'
 import * as core from '@actions/core'
 import {ReleaseType} from 'semver'
+import {bumpType} from './get-context'
 import clean from 'semver/functions/clean'
 import inc from 'semver/functions/inc'
 
-const bump = core.getInput('bump', {required: false}) || 'patch'
 let releaseType: ReleaseType
 
-switch (bump) {
+switch (bumpType) {
   case 'major':
     releaseType = 'major'
     break

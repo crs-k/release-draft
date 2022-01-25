@@ -10,6 +10,7 @@ inputs:
   bump:
     description: 'Semver bump type. Options: major, minor, patch, premajor, preminor, prepatch, or prerelease.  Default level is patch. Only one version may be specified.'
     required: false
+    default: 'patch'
 outputs:
   id:
     description: 'The ID of the Release'
