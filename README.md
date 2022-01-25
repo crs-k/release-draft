@@ -39,7 +39,7 @@ Inputs are defined in [`action.yml`](action.yml):
 
 | Name | Description |
 | ---- | ----------- |
-| `single` | Assumes one release draft is active at a time. This release draft will be created as a general release. Example: `v1.0.0` |
+| `single` | Assumes one release draft is active at a time. Release drafts will be created as a general release. Example: `v1.0.0` |
 | `double` | Assumes two environments are in use. The first release draft will be flagged as a pre-release, followed by a general draft release once the pre-release is released. Example: `v1.0.0-alpha.1` followed by `v1.0.0` |
 | `triple` | Assumes three environments are in use. This is similar to `double` but will add an additional pre-release between general releases. Example: `v1.0.0-alpha.1` followed by `v1.0.0-beta.1` followed by `v1.0.0` |
 
