@@ -29,13 +29,13 @@ export async function run(): Promise<void> {
       const previousReleaseType = await getReleaseType(targetTag)
       const nextReleaseType = await getNextReleaseType(previousReleaseType)
       const nextTag = await createNextTag(targetTag, nextReleaseType)
-      await createDraft(nextTag)
+      await createDraft(nextTag, nextReleaseType)
     } else {
       // Create a new draft
       const previousReleaseType = await getReleaseType(targetTag)
       const nextReleaseType = await getNextReleaseType(previousReleaseType)
       const nextTag = await createNextTag(targetTag, nextReleaseType)
-      await createDraft(nextTag)
+      await createDraft(nextTag, nextReleaseType)
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(`Action failed with ${error.message}`)

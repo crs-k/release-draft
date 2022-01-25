@@ -40,12 +40,19 @@ const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
 const get_default_branch_1 = __nccwpck_require__(8662);
-function createDraft(nextTag) {
+function createDraft(nextTag, nextReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Creating Release Draft...');
         let releaseId;
         let html_url;
         let upload_url;
+        let prereleaseBool;
+        if (nextReleaseType === 'production') {
+            prereleaseBool = false;
+        }
+        else {
+            prereleaseBool = true;
+        }
         try {
             //Find default branch
             const defaultBranch = yield (0, get_default_branch_1.getDefaultBranch)();
@@ -58,7 +65,8 @@ function createDraft(nextTag) {
                 name: nextTag,
                 target_commitish: commitish,
                 draft: true,
-                generate_release_notes: true
+                generate_release_notes: true,
+                prerelease: prereleaseBool
             });
             releaseId = response.data.id;
             html_url = response.data.html_url;
@@ -728,14 +736,14 @@ function run() {
                 const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
                 const nextReleaseType = yield (0, get_next_release_type_1.getNextReleaseType)(previousReleaseType);
                 const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag, nextReleaseType);
-                yield (0, create_draft_1.createDraft)(nextTag);
+                yield (0, create_draft_1.createDraft)(nextTag, nextReleaseType);
             }
             else {
                 // Create a new draft
                 const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);
                 const nextReleaseType = yield (0, get_next_release_type_1.getNextReleaseType)(previousReleaseType);
                 const nextTag = yield (0, create_next_tag_1.createNextTag)(targetTag, nextReleaseType);
-                yield (0, create_draft_1.createDraft)(nextTag);
+                yield (0, create_draft_1.createDraft)(nextTag, nextReleaseType);
             }
         }
         catch (error) {

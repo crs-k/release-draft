@@ -8,10 +8,11 @@ import {github} from '../../src/functions/get-context'
 jest.mock('../../src/functions/get-context')
 let targetTag = 'v1.0.0'
 let commitish = 'main'
+let nextReleaseType = 'beta'
 
 describe('Create Draft Function', () => {
   test('createRelease endpoint is called', async () => {
-    await createDraft(targetTag)
+    await createDraft(targetTag, nextReleaseType)
 
     expect(github.rest.repos.createRelease).toHaveBeenCalledWith({
       owner: 'owner',
@@ -20,13 +21,14 @@ describe('Create Draft Function', () => {
       name: targetTag,
       target_commitish: commitish,
       draft: true,
-      generate_release_notes: true
+      generate_release_notes: true,
+      prerelease: true
     })
   })
 
   test('Infos are set', async () => {
     core.info = jest.fn()
-    await createDraft(targetTag)
+    await createDraft(targetTag, nextReleaseType)
 
     expect(core.info).toHaveBeenNthCalledWith(1, 'Creating Release Draft...')
     expect(core.info).toHaveBeenNthCalledWith(2, `Release ID: '0'`)

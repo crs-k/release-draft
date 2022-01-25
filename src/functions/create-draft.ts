@@ -3,11 +3,21 @@ import * as core from '@actions/core'
 import {github, owner, repo} from './get-context'
 import {getDefaultBranch} from './get-default-branch'
 
-export async function createDraft(nextTag: string): Promise<[number, string, string]> {
+export async function createDraft(
+  nextTag: string,
+  nextReleaseType: string
+): Promise<[number, string, string]> {
   core.info('Creating Release Draft...')
   let releaseId: number
   let html_url: string
   let upload_url: string
+  let prereleaseBool: boolean
+  if (nextReleaseType === 'production') {
+    prereleaseBool = false
+  } else {
+    prereleaseBool = true
+  }
+
   try {
     //Find default branch
     const defaultBranch = await getDefaultBranch()
@@ -20,7 +30,8 @@ export async function createDraft(nextTag: string): Promise<[number, string, str
       name: nextTag,
       target_commitish: commitish,
       draft: true,
-      generate_release_notes: true
+      generate_release_notes: true,
+      prerelease: prereleaseBool
     })
 
     releaseId = response.data.id
