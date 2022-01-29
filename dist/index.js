@@ -39,7 +39,7 @@ exports.createDraft = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
-const get_default_branch_1 = __nccwpck_require__(8662);
+const get_commitish_1 = __nccwpck_require__(416);
 function createDraft(nextTag, nextReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Creating Release Draft...');
@@ -47,6 +47,7 @@ function createDraft(nextTag, nextReleaseType) {
         let html_url;
         let upload_url;
         let prereleaseBool;
+        let commitish;
         if (nextReleaseType === 'production') {
             prereleaseBool = false;
         }
@@ -54,10 +55,8 @@ function createDraft(nextTag, nextReleaseType) {
             prereleaseBool = true;
         }
         try {
-            //Find default branch
-            const defaultBranch = yield (0, get_default_branch_1.getDefaultBranch)();
-            const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
             // Create release draft
+            commitish = yield (0, get_commitish_1.getCommitish)();
             const response = yield get_context_1.github.rest.repos.createRelease({
                 owner: get_context_1.owner,
                 repo: get_context_1.repo,
@@ -260,6 +259,56 @@ exports.createNotes = createNotes;
 
 /***/ }),
 
+/***/ 416:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getCommitish = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const get_default_branch_1 = __nccwpck_require__(8662);
+function getCommitish() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const defaultBranch = yield (0, get_default_branch_1.getDefaultBranch)();
+        const commitish = core.getInput('commitish', { required: false }) || defaultBranch;
+        core.info(`Commitish: '${commitish}'`);
+        return commitish;
+    });
+}
+exports.getCommitish = getCommitish;
+
+
+/***/ }),
+
 /***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -286,7 +335,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.releaseStrategy = exports.bumpType = exports.repo = exports.owner = exports.github = void 0;
+exports.publishStrategy = exports.releaseStrategy = exports.bumpType = exports.repo = exports.owner = exports.github = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const repoToken = core.getInput('repo-token', { required: true });
@@ -295,6 +344,7 @@ exports.github = (0, github_1.getOctokit)(repoToken);
 _a = github_1.context.repo, exports.owner = _a.owner, exports.repo = _a.repo;
 exports.bumpType = core.getInput('bump', { required: false });
 exports.releaseStrategy = core.getInput('release-strategy', { required: false });
+exports.publishStrategy = core.getInput('publish-strategy', { required: false });
 
 
 /***/ }),
@@ -436,6 +486,88 @@ function getNextReleaseType(previousReleaseType) {
     });
 }
 exports.getNextReleaseType = getNextReleaseType;
+
+
+/***/ }),
+
+/***/ 9544:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getOpenPullRequestExists = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const get_context_1 = __nccwpck_require__(7782);
+const get_commitish_1 = __nccwpck_require__(416);
+function getOpenPullRequestExists() {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        let pullRequestsPending = 0;
+        let pullRequestsExists = false;
+        let commitish;
+        try {
+            core.info('Retrieving active pull requests...');
+            commitish = yield (0, get_commitish_1.getCommitish)();
+            // Get the open PRs of the default branch
+            const response = yield get_context_1.github.rest.pulls.list({
+                owner: get_context_1.owner,
+                repo: get_context_1.repo,
+                state: 'open',
+                base: commitish
+            });
+            pullRequestsPending = new Set(response.data.map(filteredPullRequests => filteredPullRequests.number)).size;
+            if (pullRequestsPending > 0) {
+                pullRequestsExists = true;
+            }
+        }
+        catch (err) {
+            // Handle .wiki repo
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (((_a = err) === null || _a === void 0 ? void 0 : _a.status) === 404 && get_context_1.repo.toUpperCase().endsWith('.WIKI')) {
+                pullRequestsExists = false;
+            }
+            // Otherwise error
+            else {
+                if (err instanceof Error)
+                    core.setFailed(`Failed to retrieve pull requests: ${err.message}`);
+                pullRequestsExists = false;
+            }
+        }
+        // Print the default branch
+        core.info(`Pending Pull Requests: '${pullRequestsExists}'`);
+        return pullRequestsExists;
+    });
+}
+exports.getOpenPullRequestExists = getOpenPullRequestExists;
 
 
 /***/ }),
@@ -627,7 +759,7 @@ exports.updateDraft = void 0;
 const assert = __importStar(__nccwpck_require__(9491));
 const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
-function updateDraft(targetTag, updateName, updateBody, prevReleaseId) {
+function updateDraft(targetTag, updateName, updateBody, prevReleaseId, releaseBool) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Updating Release Draft...');
         let releaseId;
@@ -642,7 +774,7 @@ function updateDraft(targetTag, updateName, updateBody, prevReleaseId) {
                 tag_name: targetTag,
                 name: updateName,
                 body: updateBody,
-                draft: true
+                draft: releaseBool
             });
             releaseId = response.data.id;
             html_url = response.data.html_url;
@@ -714,23 +846,31 @@ const create_draft_1 = __nccwpck_require__(1536);
 const create_next_tag_1 = __nccwpck_require__(5961);
 const create_notes_1 = __nccwpck_require__(2565);
 const get_next_release_type_1 = __nccwpck_require__(6217);
+const get_pr_target_count_1 = __nccwpck_require__(9544);
 const get_recent_release_1 = __nccwpck_require__(6407);
 const get_release_type_1 = __nccwpck_require__(8079);
+const get_context_1 = __nccwpck_require__(7782);
 const update_draft_1 = __nccwpck_require__(4966);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             //Check for existence of release draft
             const { 0: targetTag, 1: prevDraft, 2: prevReleaseId } = yield (0, get_recent_release_1.getRecentRelease)();
-            //Check previous release type
-            //if (prevDraft === false && prevReleaseId !== 0) {
-            //}
             // Update Release
             if (prevDraft === true) {
                 //Generate release notes
                 const { 0: updateName, 1: updateBody } = yield (0, create_notes_1.createNotes)(targetTag);
-                //Update existing draft
-                yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId);
+                //Publish release if strategy is 'auto' and no open PRs exist
+                if (get_context_1.publishStrategy === 'auto') {
+                    const openPullRequests = yield (0, get_pr_target_count_1.getOpenPullRequestExists)();
+                    if (openPullRequests === false) {
+                        yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId, false);
+                    }
+                }
+                else {
+                    //Update existing draft
+                    yield (0, update_draft_1.updateDraft)(targetTag, updateName, updateBody, prevReleaseId, true);
+                }
             }
             else if (prevDraft === false && prevReleaseId !== 0) {
                 const previousReleaseType = yield (0, get_release_type_1.getReleaseType)(targetTag);

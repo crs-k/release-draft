@@ -17,7 +17,7 @@ describe('Update Draft Function', () => {
     jest.clearAllMocks()
   })
   test('updateDraft endpoint is called', async () => {
-    await updateDraft(targetTag, updateName, updateBody, prevReleaseId)
+    await updateDraft(targetTag, updateName, updateBody, prevReleaseId, true)
 
     expect(github.rest.repos.updateRelease).toHaveBeenCalledWith({
       owner: 'owner',
@@ -32,7 +32,7 @@ describe('Update Draft Function', () => {
 
   test('Infos are set', async () => {
     core.info = jest.fn()
-    await updateDraft(targetTag, updateName, updateBody, prevReleaseId)
+    await updateDraft(targetTag, updateName, updateBody, prevReleaseId, true)
 
     expect(core.info).toHaveBeenNthCalledWith(1, 'Updating Release Draft...')
     expect(core.info).toHaveBeenNthCalledWith(2, `Release ID: '0'`)

@@ -24,6 +24,7 @@ Inputs are defined in [`action.yml`](action.yml):
 | `commitish` | `No` | Target of release. | Default branch |
 | `bump` | `No` | Version increase type. Options: `major`, `minor`, `patch`. | `patch`
 | `release-strategy` | `No` | See [Release Strategies](#release-strategies) for more details. | `single`
+| `publish-strategy` | `No` | See [Publish Strategies](#publish-strategies) for more details. | `manual`
 
 ### Outputs
 Outputs are defined in [`action.yml`](action.yml):
@@ -40,8 +41,16 @@ Inputs are defined in [`action.yml`](action.yml):
 | Name | Description |
 | ---- | ----------- |
 | `single` | Assumes one release draft is active at a time. Release drafts will be created as a general release. Example: `v1.0.0` |
-| `double` | Assumes two environments are in use. The first release draft will be flagged as a pre-release, followed by a general draft release once the pre-release is released. Example: `v1.0.0-alpha.1` followed by `v1.0.0` |
-| `triple` | Assumes three environments are in use. This is similar to `double` but will add an additional pre-release between general releases. Example: `v1.0.0-alpha.1` followed by `v1.0.0-beta.1` followed by `v1.0.0` |
+| `double` | Assumes two environments are in use. The first release draft will be flagged as a pre-release, followed by a general draft release once the pre-release is released. Example: `v1.0.0-alpha.0` followed by `v1.0.0` |
+| `triple` | Assumes three environments are in use. This is similar to `double` but will add an additional pre-release between general releases. Example: `v1.0.0-alpha.0` followed by `v1.0.0-beta.0` followed by `v1.0.0` |
+
+### Publish Strategies
+Inputs are defined in [`action.yml`](action.yml):
+
+| Name | Description |
+| ---- | ----------- |
+| `manual` | Default setting. Releases are created as drafts and not published. |
+| `auto` | Draft releases will be published if no PRs are pending against `commitish`  |
 
 ## Example workflow
 

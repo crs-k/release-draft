@@ -15,6 +15,10 @@ inputs:
     description: 'See Release Strategy section for details.'
     required: false
     default: 'single'
+  publish-strategy:
+    description: 'See Publish Strategy section for details.'
+    required: false
+    default: 'manual'
 outputs:
   id:
     description: 'The ID of the Release'
