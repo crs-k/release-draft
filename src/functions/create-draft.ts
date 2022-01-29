@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as core from '@actions/core'
 import {github, owner, repo} from './get-context'
-import {getDefaultBranch} from './get-default-branch'
+import {getCommitish} from './get-commitish'
 
 export async function createDraft(
   nextTag: string,
@@ -12,6 +12,7 @@ export async function createDraft(
   let html_url: string
   let upload_url: string
   let prereleaseBool: boolean
+  let commitish: string
   if (nextReleaseType === 'production') {
     prereleaseBool = false
   } else {
@@ -19,10 +20,8 @@ export async function createDraft(
   }
 
   try {
-    //Find default branch
-    const defaultBranch = await getDefaultBranch()
-    const commitish = core.getInput('commitish', {required: false}) || defaultBranch
     // Create release draft
+    commitish = await getCommitish()
     const response = await github.rest.repos.createRelease({
       owner,
       repo,

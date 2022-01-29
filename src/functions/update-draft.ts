@@ -6,7 +6,8 @@ export async function updateDraft(
   targetTag: string,
   updateName: string,
   updateBody: string,
-  prevReleaseId: number
+  prevReleaseId: number,
+  releaseBool: boolean
 ): Promise<[number, string, string]> {
   core.info('Updating Release Draft...')
   let releaseId: number
@@ -21,7 +22,7 @@ export async function updateDraft(
       tag_name: targetTag,
       name: updateName,
       body: updateBody,
-      draft: true
+      draft: releaseBool
     })
 
     releaseId = response.data.id

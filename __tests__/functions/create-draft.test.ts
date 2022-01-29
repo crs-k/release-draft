@@ -31,8 +31,9 @@ describe('Create Draft Function', () => {
     await createDraft(targetTag, nextReleaseType)
 
     expect(core.info).toHaveBeenNthCalledWith(1, 'Creating Release Draft...')
-    expect(core.info).toHaveBeenNthCalledWith(2, `Release ID: '0'`)
-    expect(core.info).toHaveBeenNthCalledWith(3, `HTML URL: ''`)
-    expect(core.info).toHaveBeenNthCalledWith(4, `Upload URL: ''`)
+    expect(core.info).toHaveBeenNthCalledWith(2, `Commitish: 'main'`)
+    expect(core.info).toHaveBeenNthCalledWith(3, `Release ID: '0'`)
+    expect(core.info).toHaveBeenNthCalledWith(4, `HTML URL: ''`)
+    expect(core.info).toHaveBeenNthCalledWith(5, `Upload URL: ''`)
   })
 })
