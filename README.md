@@ -64,18 +64,18 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
-    branches:
-      - main
   release:
       types: [published]
+
+permissions:
+  contents: write
 
 jobs:
   release_draft:
     runs-on: ubuntu-latest
     steps:
     - name: Release Draft
-      uses: crs-k/release-draft@v0.5.0
+      uses: crs-k/release-draft@v0.6.1
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
 ```
