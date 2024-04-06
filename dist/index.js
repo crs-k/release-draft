@@ -502,7 +502,10 @@ function getNextReleaseType(previousReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
         let nextReleaseType = '';
         try {
-            if (previousReleaseType === 'production') {
+            if (get_context_1.releaseStrategy === 'single') {
+                nextReleaseType = 'production';
+            }
+            else if (previousReleaseType === 'production') {
                 if (get_context_1.releaseStrategy === 'triple') {
                     nextReleaseType = 'alpha';
                 }
@@ -519,10 +522,10 @@ function getNextReleaseType(previousReleaseType) {
             else {
                 nextReleaseType = 'production';
             }
-            (0, assert_1.default)(nextReleaseType, 'previous release type cannot be empty');
+            (0, assert_1.default)(nextReleaseType, 'next release type cannot be empty');
         }
         catch (err) {
-            core.info('Failed to find previous release type.');
+            core.info('Failed to find next release type.');
             nextReleaseType = '';
         }
         const data = nextReleaseType;

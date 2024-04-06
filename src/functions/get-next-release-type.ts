@@ -6,7 +6,9 @@ export async function getNextReleaseType(previousReleaseType: string): Promise<s
   let nextReleaseType = ''
 
   try {
-    if (previousReleaseType === 'production') {
+    if (releaseStrategy === 'single') {
+      nextReleaseType = 'production'
+    } else if (previousReleaseType === 'production') {
       if (releaseStrategy === 'triple') {
         nextReleaseType = 'alpha'
       } else if (releaseStrategy === 'double') {
@@ -20,9 +22,9 @@ export async function getNextReleaseType(previousReleaseType: string): Promise<s
       nextReleaseType = 'production'
     }
 
-    assert(nextReleaseType, 'previous release type cannot be empty')
+    assert(nextReleaseType, 'next release type cannot be empty')
   } catch (err) {
-    core.info('Failed to find previous release type.')
+    core.info('Failed to find next release type.')
     nextReleaseType = ''
   }
   const data = nextReleaseType
