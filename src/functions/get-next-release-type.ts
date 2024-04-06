@@ -3,16 +3,19 @@ import * as core from '@actions/core'
 import {releaseStrategy} from './get-context'
 
 export async function getNextReleaseType(previousReleaseType: string): Promise<string> {
-  let nextReleaseType: string
+  let nextReleaseType = ''
 
   try {
-    if (
-      previousReleaseType === 'production' &&
-      (releaseStrategy === 'triple' || releaseStrategy === 'double')
-    ) {
-      nextReleaseType = 'alpha'
+    if (previousReleaseType === 'production') {
+      if (releaseStrategy === 'triple') {
+        nextReleaseType = 'alpha'
+      } else if (releaseStrategy === 'double') {
+        nextReleaseType = 'beta'
+      }
     } else if (previousReleaseType === 'alpha' && releaseStrategy === 'triple') {
       nextReleaseType = 'beta'
+    } else if (previousReleaseType === 'beta' && releaseStrategy === 'double') {
+      nextReleaseType = 'production'
     } else {
       nextReleaseType = 'production'
     }
