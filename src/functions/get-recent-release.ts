@@ -1,4 +1,4 @@
-import * as assert from 'assert'
+import assert from 'assert'
 import * as core from '@actions/core'
 import {github, owner, repo} from './get-context'
 
@@ -18,8 +18,8 @@ export async function getRecentRelease(): Promise<[string, boolean, number]> {
     targetTag = response.data[0].tag_name
     prevDraft = response.data[0].draft
     prevReleaseId = response.data[0].id
-    assert.ok(targetTag, 'tag_name cannot be empty')
-    assert.ok(prevReleaseId, 'prevReleaseId cannot be empty')
+    assert(targetTag, 'tag_name cannot be empty')
+    assert(prevReleaseId, 'prevReleaseId cannot be empty')
   } catch (err) {
     if (err instanceof Error)
       core.info(`Previous release cannot be found with reason ${err.message}. Defaulting tag.`)

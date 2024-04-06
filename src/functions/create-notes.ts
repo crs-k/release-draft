@@ -1,4 +1,4 @@
-import * as assert from 'assert'
+import assert from 'assert'
 import * as core from '@actions/core'
 import {github, owner, repo} from './get-context'
 
@@ -17,8 +17,8 @@ export async function createNotes(targetTag: string): Promise<[string, string]> 
     updateName = response.data.name
     updateBody = response.data.body
 
-    assert.ok(updateName, 'name cannot be empty')
-    assert.ok(updateBody, 'body cannot be empty')
+    assert(updateName, 'name cannot be empty')
+    assert(updateBody, 'body cannot be empty')
   } catch (err) {
     core.info('Release Notes failed to generate.')
     updateName = 'Unnamed'
