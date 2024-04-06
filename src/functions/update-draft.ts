@@ -1,4 +1,4 @@
-import * as assert from 'assert'
+import assert from 'assert'
 import * as core from '@actions/core'
 import {github, owner, repo} from './get-context'
 
@@ -29,9 +29,9 @@ export async function updateDraft(
     html_url = response.data.html_url
     upload_url = response.data.upload_url
 
-    assert.ok(releaseId, 'Release ID cannot be empty')
-    assert.ok(html_url, 'HTML URL cannot be empty')
-    assert.ok(upload_url, 'Upload URL cannot be empty')
+    assert(releaseId, 'Release ID cannot be empty')
+    assert(html_url, 'HTML URL cannot be empty')
+    assert(upload_url, 'Upload URL cannot be empty')
   } catch (err) {
     if (err instanceof Error) core.setFailed(`Failed to update draft with reason ${err.message}`)
     releaseId = 0

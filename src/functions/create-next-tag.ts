@@ -1,4 +1,4 @@
-import * as assert from 'assert'
+import assert from 'assert'
 import * as core from '@actions/core'
 import {ReleaseType} from 'semver'
 import {bumpType} from './get-context'
@@ -29,12 +29,12 @@ export async function createNextTag(targetTag: string, nextReleaseType: string):
       const cleanTag = clean(targetTag) || ''
       const bumpTag = inc(cleanTag, increaseType)
       nextTag = `v${bumpTag}`
-      assert.ok(bumpTag, 'next tag cannot be empty')
+      assert(bumpTag, 'next tag cannot be empty')
     } else {
       const cleanTag = clean(targetTag) || ''
       const bumpTag = inc(cleanTag, 'prerelease', nextReleaseType)
       nextTag = `v${bumpTag}`
-      assert.ok(bumpTag, 'next tag cannot be empty')
+      assert(bumpTag, 'next tag cannot be empty')
     }
   } catch (err) {
     core.info('Next tag failed to generate. Defaulting to v0.1.0')

@@ -1,4 +1,4 @@
-import * as assert from 'assert'
+import assert from 'assert'
 import * as core from '@actions/core'
 
 export async function getReleaseType(previousTag: string): Promise<string> {
@@ -13,7 +13,7 @@ export async function getReleaseType(previousTag: string): Promise<string> {
       previousReleaseType = 'production'
     }
 
-    assert.ok(previousReleaseType, 'previous release type cannot be empty')
+    assert(previousReleaseType, 'previous release type cannot be empty')
   } catch (err) {
     core.info('Failed to find previous release type.')
     previousReleaseType = ''
