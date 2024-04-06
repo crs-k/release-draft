@@ -500,14 +500,21 @@ const core = __importStar(__nccwpck_require__(2186));
 const get_context_1 = __nccwpck_require__(7782);
 function getNextReleaseType(previousReleaseType) {
     return __awaiter(this, void 0, void 0, function* () {
-        let nextReleaseType;
+        let nextReleaseType = '';
         try {
-            if (previousReleaseType === 'production' &&
-                (get_context_1.releaseStrategy === 'triple' || get_context_1.releaseStrategy === 'double')) {
-                nextReleaseType = 'alpha';
+            if (previousReleaseType === 'production') {
+                if (get_context_1.releaseStrategy === 'triple') {
+                    nextReleaseType = 'alpha';
+                }
+                else if (get_context_1.releaseStrategy === 'double') {
+                    nextReleaseType = 'beta';
+                }
             }
             else if (previousReleaseType === 'alpha' && get_context_1.releaseStrategy === 'triple') {
                 nextReleaseType = 'beta';
+            }
+            else if (previousReleaseType === 'beta' && get_context_1.releaseStrategy === 'double') {
+                nextReleaseType = 'production';
             }
             else {
                 nextReleaseType = 'production';
