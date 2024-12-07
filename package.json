@@ -38,7 +38,7 @@
     "eslint-plugin-github": "4.9.0",
     "eslint-plugin-jest": "27.9.0",
     "js-yaml": "4.1.0",
-    "prettier": "2.8.8",
+    "prettier": "3.4.2",
     "ts-jest": "29.2.5",
     "typescript": "5.7.2",
     "node-fetch": "3.3.2"
